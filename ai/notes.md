@@ -1,3 +1,6 @@
+## TODO
+
+- Revisit and further improve the person model's arm/shoulder connection for more anatomical accuracy and visual appeal.
 # AI Development Notes
 
 ## Overall Goal
