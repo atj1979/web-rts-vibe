@@ -10,7 +10,7 @@ This file outlines the main goals and objectives for the web-based VR game proje
 - [ ] Create a basic interactive VR scene as a starting point.
 
 ## How to Use This File
-- Add, update, or check off goals as the project progresses.
+- Add, update, or check off goals as the project progresses.g
 - Use Markdown formatting for sections, lists, and checkboxes.
 
 ---
