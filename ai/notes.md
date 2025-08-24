@@ -27,5 +27,19 @@ This file contains human-readable notes about the development of the web-based V
 
 ---
 
-Add your notes below:
+
+## VR/WebXR Setup
+- The project uses Three.js's VRButton for WebXR support. If VR is not available, a fallback message is shown and standard controls are used.
+- VR and non-VR modes are both supported and tested.
+
+## Camera Naming
+- The main camera is named `userCamera` to allow for future support of multiple cameras (e.g., cinematic, minimap, or AI cameras).
+
+## Deployment
+- Automated deployment is set up using GitHub Actions. The workflow builds the project and pushes the output to the `gh-pages` branch.
+- The repository must be public for GitHub Pages to work. Pages source is set to `gh-pages` branch, root folder.
+
+## Person Model Design
+- The person model is built from basic Three.js shapes for simplicity and performance.
+- The arm/shoulder connection is a known area for improvement and is tracked in the TODO section above.
 

@@ -8,6 +8,9 @@ This file outlines the main goals and objectives for the web-based VR game proje
 - [ ] Set up a Vite + TypeScript project for web-based VR development.
 - [ ] Integrate a VR framework (e.g., Three.js or A-Frame).
 - [ ] Create a basic interactive VR scene as a starting point.
+- [ ] Set up automated deployment to GitHub Pages via GitHub Actions.
+- [ ] Ensure VR and non-VR fallback works on all supported devices.
+- [ ] Refine person model for anatomical accuracy and visual appeal.
 
 ## How to Use This File
 - Add, update, or check off goals as the project progresses.g
