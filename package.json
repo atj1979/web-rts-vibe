@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "node ./scripts/write-commit.cjs && vite --host",
     "build": "node ./scripts/write-commit.cjs && tsc && vite build",
     "preview": "vite preview",
     "deploy": "vite build && gh-pages -d dist"
