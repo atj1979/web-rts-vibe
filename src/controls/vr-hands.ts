@@ -70,7 +70,14 @@ export function setupVRHands(renderer: THREE.WebGLRenderer, scene: THREE.Scene) 
   }
 
   // Listen for session start/end and input source changes to update visibility
-  renderer.xr.addEventListener('sessionstart', update as any);
+  renderer.xr.addEventListener('sessionstart', () => {
+    update();
+    // also listen for input source changes on the session to update hand/controller visibility
+    const session = renderer.xr.getSession();
+    if (session && (session as any).addEventListener) {
+      (session as any).addEventListener('inputsourceschange', update);
+    }
+  });
   renderer.xr.addEventListener('sessionend', update as any);
 
   // return hands + updater

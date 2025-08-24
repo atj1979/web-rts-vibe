@@ -44,3 +44,8 @@ This file contains human-readable notes about the development of the web-based V
 - The person model is built from basic Three.js shapes for simplicity and performance.
 - The arm/shoulder connection is a known area for improvement and is tracked in the TODO section above.
 
+## Recent Repo housekeeping
+
+- [2025-08-24] Added `src/commit.ts` to `.gitignore` so build-time writes won't appear in `git status`.
+- Note: if `src/commit.ts` was already tracked by git, it will still show as changed until the file is removed from the index (git rm --cached). No git commands were run by the assistant; please untrack the file locally if desired.
+

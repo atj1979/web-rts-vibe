@@ -2,7 +2,7 @@
 
 
 import * as THREE from 'three';
-import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+// We'll request a custom XR session so we can include `hand-tracking` in optionalFeatures
 import { createPerson } from './objects/person';
 import { setupVRHands } from './controls/vr-hands';
 import { COMMIT } from './commit';
@@ -12,25 +12,68 @@ const scene = new THREE.Scene();
 const userCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.xr.enabled = true;
-document.body.appendChild(renderer.domElement);
 
-// Add VR button if available
+// Mount the renderer into the #app container so it only takes available size
+const appEl = document.getElementById('app')!;
+appEl.appendChild(renderer.domElement);
+
+function resizeRendererToDisplaySize() {
+  const width = appEl.clientWidth || window.innerWidth;
+  const height = appEl.clientHeight || window.innerHeight;
+  renderer.setSize(width, height, false);
+  userCamera.aspect = width / height;
+  userCamera.updateProjectionMatrix();
+}
+
+// Initial sizing
+resizeRendererToDisplaySize();
+window.addEventListener('resize', resizeRendererToDisplaySize);
+
+// Add XR entry button that requests hand-tracking when available
 if ('xr' in navigator) {
-  document.body.appendChild(VRButton.createButton(renderer));
+  const xrButton = document.createElement('button');
+  xrButton.innerText = 'Enter VR (request hand-tracking)';
+  xrButton.className = 'xr-button';
+  xrButton.style.padding = '8px 12px';
+  xrButton.style.borderRadius = '6px';
+  xrButton.style.background = '#0b84ff';
+  xrButton.style.color = 'white';
+  xrButton.style.border = 'none';
+  xrButton.style.cursor = 'pointer';
+
+  xrButton.onclick = async () => {
+    try {
+      // Check support then request session with hand-tracking as an optional feature
+      const xr: any = (navigator as any).xr;
+      const supported = await xr.isSessionSupported && xr.isSessionSupported('immersive-vr');
+      if (!supported) {
+        window.alert('Immersive VR not supported on this device.');
+        return;
+      }
+
+      const session = await xr.requestSession('immersive-vr', {
+        optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking']
+      });
+
+      await renderer.xr.setSession(session);
+    } catch (err) {
+      console.error('Failed to start XR session:', err);
+    }
+  };
+
+  const ui = document.getElementById('ui') || document.body;
+  ui.appendChild(xrButton);
 } else {
-  // Fallback: show a message or just use standard controls
+  // Fallback: show a centered message in the UI overlay
   const fallbackMsg = document.createElement('div');
   fallbackMsg.innerText = 'VR not supported. Using standard controls.';
-  fallbackMsg.style.position = 'absolute';
-  fallbackMsg.style.top = '10px';
-  fallbackMsg.style.left = '10px';
   fallbackMsg.style.background = 'rgba(0,0,0,0.7)';
   fallbackMsg.style.color = 'white';
   fallbackMsg.style.padding = '8px 16px';
   fallbackMsg.style.borderRadius = '8px';
-  document.body.appendChild(fallbackMsg);
+  const ui = document.getElementById('ui') || document.body;
+  ui.appendChild(fallbackMsg);
 }
 
 
