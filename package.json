@@ -11,7 +11,9 @@
   },
   "devDependencies": {
     "@types/three": "^0.179.0",
+    "@types/node": "^20.5.0",
     "gh-pages": "^6.3.0",
+    "vite-plugin-mkcert": "^1.17.8",
     "typescript": "~5.8.3",
     "vite": "^7.1.2",
     "vite-plugin-gh-pages": "^1.0.1"

@@ -26,3 +26,6 @@ dist-ssr
 
 # Build / generated
 src/commit.ts
+
+# Local dev HTTPS certs (mkcert output)
+certs/
