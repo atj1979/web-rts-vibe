@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { createPerson } from './objects/person';
+import { setupVRHands } from './controls/vr-hands';
 
 // Create scene, camera, and renderer
 const scene = new THREE.Scene();
@@ -36,6 +37,9 @@ if ('xr' in navigator) {
 const person = createPerson();
 scene.add(person);
 
+// Setup VR hands and controller models (hand-tracking with controller fallback)
+const vrHands = setupVRHands(renderer, scene);
+
 // Add a light source for the Phong material
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(5, 5, 5);
@@ -51,6 +55,10 @@ userCamera.lookAt(0, 1, 0);
 // Animation loop
 function renderLoop() {
   person.rotation.y += 0.01;
+  // update VR hands visibility/logic if available
+  if ((vrHands as any)?.update) {
+    (vrHands as any).update();
+  }
   renderer.render(scene, userCamera);
 }
 
