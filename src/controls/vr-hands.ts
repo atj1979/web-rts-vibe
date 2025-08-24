@@ -34,8 +34,10 @@ export function setupVRHands(renderer: THREE.WebGLRenderer, scene: THREE.Scene) 
   // hands
   const hand1 = renderer.xr.getHand(0);
   const hand2 = renderer.xr.getHand(1);
-  hand1.add(handFactory.createHandModel(hand1));
-  hand2.add(handFactory.createHandModel(hand2));
+  // Use the skinned mesh hand model so joint poses map to finger bones
+  // Valid options: 'mesh' | 'spheres' | 'boxes' (mesh provides a skinned mesh driven by joints)
+  hand1.add(handFactory.createHandModel(hand1, 'mesh'));
+  hand2.add(handFactory.createHandModel(hand2, 'mesh'));
   scene.add(hand1);
   scene.add(hand2);
 

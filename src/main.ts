@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { createPerson } from './objects/person';
 import { setupVRHands } from './controls/vr-hands';
+import { COMMIT } from './commit';
 
 // Create scene, camera, and renderer
 const scene = new THREE.Scene();
@@ -39,6 +40,9 @@ scene.add(person);
 
 // Setup VR hands and controller models (hand-tracking with controller fallback)
 const vrHands = setupVRHands(renderer, scene);
+
+// Log commit hash so deployed builds can be traced
+console.log('Build commit:', COMMIT);
 
 // Add a light source for the Phong material
 const light = new THREE.DirectionalLight(0xffffff, 1);

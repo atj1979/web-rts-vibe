@@ -31,6 +31,7 @@ This file contains human-readable notes about the development of the web-based V
 ## VR/WebXR Setup
 - The project uses Three.js's VRButton for WebXR support. If VR is not available, a fallback message is shown and standard controls are used.
 - VR and non-VR modes are both supported and tested.
+- TODO: Request WebXR optional feature `hand-tracking` when starting XR session so devices like Quest 3 provide joint data reliably. Consider custom session request instead of VRButton default.
 
 ## Camera Naming
 - The main camera is named `userCamera` to allow for future support of multiple cameras (e.g., cinematic, minimap, or AI cameras).
