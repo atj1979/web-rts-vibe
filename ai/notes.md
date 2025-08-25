@@ -27,6 +27,13 @@ This file contains human-readable notes about the development of the web-based V
 
 ---
 
+## Update Manager Pattern
+- [2025-08-24] All per-frame update logic (movement, VR hands, etc.) must be registered with the update manager (`updateManager`).
+- Do **not** call `.update()` methods directly in the render loop. Instead, register them with `updateManager.register(fn)` and call `updateManager.updateAll(dt)` in the render loop.
+- This ensures a scalable, maintainable update pattern for all game objects and systems.
+
+---
+
 
 ## VR/WebXR Setup
 - The project uses Three.js's VRButton for WebXR support. If VR is not available, a fallback message is shown and standard controls are used.
