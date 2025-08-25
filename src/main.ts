@@ -1,6 +1,9 @@
 import * as THREE from "three";
 // We'll request a custom XR session so we can include `hand-tracking` in optionalFeatures
 import { setupPlayer } from "./setup/setupPlayer";
+import { SceneSwitcher } from "./sceneSwitcher";
+import { addBasicWorld } from "./scenes/basicWorld";
+import { addVariedLandscape } from "./scenes/variedLandscape";
 import { COMMIT } from "./commit";
 import { setupResizeListener } from "./setup/resizeListener";
 import { updateManager } from "./setup/updateManager";
@@ -62,7 +65,21 @@ if ("xr" in navigator) {
   ui.appendChild(fallbackMsg);
 }
 
-const { userCamera } = setupPlayer(renderer, scene);
+const { userCamera, player } = setupPlayer(renderer, scene);
+
+// --- Scene Switcher Setup ---
+const sceneSwitcher = new SceneSwitcher(scene);
+sceneSwitcher.registerScene("Basic World", addBasicWorld);
+sceneSwitcher.registerScene("Varied Landscape", addVariedLandscape);
+sceneSwitcher.switchTo(0); // Start with first scene
+sceneSwitcher.attachUIToLeftWrist();
+
+// Set user/player position after scene load
+const setPlayerToSceneSpawn = () => {
+  const spawn = sceneSwitcher.getSpawnPosition();
+  if (player) player.position.set(spawn.x, spawn.y, spawn.z);
+};
+setPlayerToSceneSpawn();
 setupResizeListener({
   renderer,
   camera: userCamera,
