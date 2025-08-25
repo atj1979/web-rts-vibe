@@ -1,12 +1,15 @@
-import * as THREE from 'three';
-import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory.js';
-import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
+import * as THREE from "three";
+import { XRHandModelFactory } from "three/examples/jsm/webxr/XRHandModelFactory.js";
+import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 
 /**
  * Setup hand tracking with controller fallback.
  * - Returns an object with left/right hand groups and controllers.
  */
-export function setupVRHands(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
+export function setupVRHands(
+  renderer: THREE.WebGLRenderer,
+  scene: THREE.Scene
+) {
   const handFactory = new XRHandModelFactory();
   const controllerFactory = new XRControllerModelFactory();
 
@@ -15,6 +18,9 @@ export function setupVRHands(renderer: THREE.WebGLRenderer, scene: THREE.Scene) 
     right: null as unknown as THREE.Group,
     controllerLeft: null as unknown as THREE.Group,
     controllerRight: null as unknown as THREE.Group,
+    // raw controller objects (useful for reading gamepad/input directly)
+    controllerLeftRaw: null as unknown as THREE.Group,
+    controllerRightRaw: null as unknown as THREE.Group,
   };
 
   // controllers
@@ -36,8 +42,8 @@ export function setupVRHands(renderer: THREE.WebGLRenderer, scene: THREE.Scene) 
   const hand2 = renderer.xr.getHand(1);
   // Use the skinned mesh hand model so joint poses map to finger bones
   // Valid options: 'mesh' | 'spheres' | 'boxes' (mesh provides a skinned mesh driven by joints)
-  hand1.add(handFactory.createHandModel(hand1, 'mesh'));
-  hand2.add(handFactory.createHandModel(hand2, 'mesh'));
+  hand1.add(handFactory.createHandModel(hand1, "mesh"));
+  hand2.add(handFactory.createHandModel(hand2, "mesh"));
   scene.add(hand1);
   scene.add(hand2);
 
@@ -45,6 +51,8 @@ export function setupVRHands(renderer: THREE.WebGLRenderer, scene: THREE.Scene) 
   hands.right = hand2;
   hands.controllerLeft = controllerGrip1;
   hands.controllerRight = controllerGrip2;
+  hands.controllerLeftRaw = controller1;
+  hands.controllerRightRaw = controller2;
 
   // Update function: toggle visibility based on whether the XR session reports hand input sources
   function update() {
@@ -59,8 +67,12 @@ export function setupVRHands(renderer: THREE.WebGLRenderer, scene: THREE.Scene) 
     }
 
     const inputSources = Array.from(session.inputSources || []);
-    const leftHanded = inputSources.some((s: any) => s.handedness === 'left' && !!s.hand);
-    const rightHanded = inputSources.some((s: any) => s.handedness === 'right' && !!s.hand);
+    const leftHanded = inputSources.some(
+      (s: any) => s.handedness === "left" && !!s.hand
+    );
+    const rightHanded = inputSources.some(
+      (s: any) => s.handedness === "right" && !!s.hand
+    );
 
     // If hand tracking is available for a hand, show the hand model and hide the controller model
     hand1.visible = leftHanded;
@@ -70,15 +82,15 @@ export function setupVRHands(renderer: THREE.WebGLRenderer, scene: THREE.Scene) 
   }
 
   // Listen for session start/end and input source changes to update visibility
-  renderer.xr.addEventListener('sessionstart', () => {
+  renderer.xr.addEventListener("sessionstart", () => {
     update();
     // also listen for input source changes on the session to update hand/controller visibility
     const session = renderer.xr.getSession();
     if (session && (session as any).addEventListener) {
-      (session as any).addEventListener('inputsourceschange', update);
+      (session as any).addEventListener("inputsourceschange", update);
     }
   });
-  renderer.xr.addEventListener('sessionend', update as any);
+  renderer.xr.addEventListener("sessionend", update as any);
 
   // return hands + updater
   return { ...hands, update };
