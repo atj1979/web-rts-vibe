@@ -7,6 +7,8 @@ import { addVariedLandscape } from "./scenes/variedLandscape";
 import { COMMIT } from "./commit";
 import { setupResizeListener } from "./setup/resizeListener";
 import { updateManager } from "./setup/updateManager";
+import { createVRDebugPanel } from "./core/vrDebugPanel";
+import { setupVRMenu } from "./ui/vrMenu";
 
 // Create scene and renderer
 const scene = new THREE.Scene();
@@ -66,6 +68,8 @@ if ("xr" in navigator) {
 }
 
 const { userCamera, player } = setupPlayer(renderer, scene);
+// Create in-VR debug panel (pass camera so it always faces user)
+createVRDebugPanel(scene, player, userCamera);
 
 // --- Scene Switcher Setup ---
 const sceneSwitcher = new SceneSwitcher(scene);
@@ -84,6 +88,13 @@ setupResizeListener({
   renderer,
   camera: userCamera,
   parentEl: appEl,
+});
+
+setupVRMenu({
+  sceneSwitcher,
+  renderer,
+  camera: userCamera,
+  player,
 });
 
 // Log commit hash so deployed builds can be traced

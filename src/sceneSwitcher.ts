@@ -14,6 +14,8 @@
  */
 
 import * as THREE from "three";
+import { eventBus } from "./core/eventBus";
+import { store } from "./core/store";
 
 export type SceneSetupResult = {
   dispose: () => void;
@@ -31,6 +33,10 @@ export class SceneSwitcher {
 
   constructor(scene: THREE.Scene) {
     this.scene = scene;
+    // Listen for scene:switch events
+    eventBus.on<number>("scene:switch", (idx) => {
+      this.switchTo(idx);
+    });
   }
 
   registerScene(name: string, setup: SceneSetupFn) {
@@ -50,6 +56,13 @@ export class SceneSwitcher {
     this.currentCleanup = result.dispose;
     this.currentGetSpawn = result.getSpawnPosition;
     this.currentSceneIdx = idx;
+    // Update global store
+    store.set({
+      currentSceneIdx: idx,
+      userSpawn: this.getSpawnPosition().clone(),
+    });
+    // Optionally emit event for scene changed
+    eventBus.emit("scene:changed", idx);
   }
 
   getSpawnPosition(): THREE.Vector3 {
@@ -75,7 +88,7 @@ export class SceneSwitcher {
       const btn = document.createElement("button");
       btn.innerText = s.name;
       btn.style.margin = "4px";
-      btn.onclick = () => this.switchTo(i);
+      btn.onclick = () => eventBus.emit("scene:switch", i);
       dom.appendChild(btn);
     });
     document.body.appendChild(dom);

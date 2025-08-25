@@ -29,7 +29,7 @@ export function setupPlayer(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
   player.add(userCamera);
 
   // Setup VR hands and controller models (hand-tracking with controller fallback)
-  const vrHands = setupVRHands(renderer, scene);
+  const vrHands = setupVRHands(renderer, player);
   // Movement controller (uses vr renderer to read gamepad when in XR)
   const movement = createMovementController(player, renderer);
 

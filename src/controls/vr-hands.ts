@@ -8,7 +8,7 @@ import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerM
  */
 export function setupVRHands(
   renderer: THREE.WebGLRenderer,
-  scene: THREE.Scene
+  scene: THREE.Scene | THREE.Group
 ) {
   const handFactory = new XRHandModelFactory();
   const controllerFactory = new XRControllerModelFactory();
