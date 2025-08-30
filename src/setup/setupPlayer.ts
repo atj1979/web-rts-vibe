@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { setupVRHands } from "../controls/vr-hands";
 import { createMovementController } from "../controls/movement";
+import { createLookController } from "../controls/look";
 import { updateManager } from "../setup/updateManager";
 
 /**
@@ -32,10 +33,15 @@ export function setupPlayer(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
   const vrHands = setupVRHands(renderer, player);
   // Movement controller (uses vr renderer to read gamepad when in XR)
   const movement = createMovementController(player, renderer);
+  // Look controller (mouse / keyboard turning for non-VR)
+  const look = createLookController(player, userCamera, renderer);
 
   // Register per-frame updates with the update manager
   if (movement && typeof movement.update === "function") {
     updateManager.register(movement.update);
+  }
+  if (look && typeof look.update === "function") {
+    updateManager.register(look.update);
   }
   if (vrHands && typeof vrHands.update === "function") {
     updateManager.register(vrHands.update);
