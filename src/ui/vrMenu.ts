@@ -13,15 +13,23 @@ export function setupVRMenu({
   renderer,
   camera,
   player,
+  // Optional keyboard config
+  keyboardToggleKey = "m",
+  keyboardHideKey = "Escape",
+  showKeyboardHint = true,
 }: {
   sceneSwitcher: SceneSwitcher;
   renderer: THREE.WebGLRenderer;
   camera: THREE.Camera;
   player: THREE.Object3D;
+  keyboardToggleKey?: string;
+  keyboardHideKey?: string;
+  showKeyboardHint?: boolean;
 }) {
   let menuPanel: THREE.Group | null = null;
   let menuVisible = true;
   let lastMenuButtonState = false;
+  let disposed = false;
 
   // Create menu panel (call when showing)
   function createMenuPanel() {
@@ -31,7 +39,6 @@ export function setupVRMenu({
       new THREE.PlaneGeometry(0.6, 0.3),
       new THREE.MeshBasicMaterial({
         color: 0x222244,
-        transparent: true,
         opacity: 0.92,
       })
     );
@@ -41,7 +48,7 @@ export function setupVRMenu({
     const btnWidth = 0.5,
       btnHeight = 0.08,
       btnGap = 0.1;
-    sceneSwitcher["scenes"].forEach((s, i) => {
+    sceneSwitcher["scenes"].forEach((_s, i) => {
       const btn = new THREE.Mesh(
         new THREE.PlaneGeometry(btnWidth, btnHeight),
         new THREE.MeshBasicMaterial({ color: 0x4488ff })
@@ -125,6 +132,7 @@ export function setupVRMenu({
 
   // Listen for left controller menu button
   renderer.setAnimationLoop((_, xrFrame?: XRFrame) => {
+    if (disposed) return;
     const session = renderer.xr.getSession();
     if (!session) {
       vrDebugLog("VR Menu: No XR session");
@@ -153,6 +161,74 @@ export function setupVRMenu({
     if (menuVisible && xrFrame) checkMenuInteraction(xrFrame);
   });
 
-  // Optionally: return show/hide for manual control
-  return { showMenu, hideMenu };
+  // On-screen keyboard hint (desktop only)
+  const uiHost = document.getElementById("ui") || document.body;
+  let hintEl: HTMLDivElement | null = null;
+  function createHint() {
+    if (!showKeyboardHint) return null;
+    const el = document.createElement("div");
+    el.textContent = `Press ${keyboardToggleKey.toUpperCase()} to toggle menu`;
+    el.style.position = "fixed";
+    el.style.left = "12px";
+    el.style.bottom = "12px";
+    el.style.padding = "6px 10px";
+    el.style.background = "rgba(0,0,0,0.5)";
+    el.style.color = "white";
+    el.style.borderRadius = "6px";
+    el.style.fontFamily = "sans-serif";
+    el.style.fontSize = "12px";
+    el.style.zIndex = "9999";
+    el.style.pointerEvents = "none";
+    return el;
+  }
+
+  function updateHintVisibility() {
+    if (!hintEl) return;
+    const inXR = !!(renderer.xr.getSession && renderer.xr.getSession());
+    // Show hint only when not in XR and menu is hidden
+    hintEl.style.display = !inXR && !menuVisible ? "block" : "none";
+  }
+
+  if (showKeyboardHint) {
+    hintEl = createHint();
+    if (hintEl) uiHost.appendChild(hintEl);
+  }
+
+  // Keyboard shortcuts (desktop): toggle and hide
+  function onKeyDown(e: KeyboardEvent) {
+    if (disposed) return;
+    // Ignore if focus is on a form control
+    const tgt = e.target as HTMLElement | null;
+    if (tgt && /(INPUT|TEXTAREA|SELECT)/i.test(tgt.tagName)) return;
+
+    // If in XR session, ignore keyboard toggles
+    if (renderer.xr.getSession && renderer.xr.getSession()) return;
+
+    if (
+      e.key === keyboardToggleKey ||
+      e.key === keyboardToggleKey.toLowerCase() ||
+      e.key === keyboardToggleKey.toUpperCase()
+    ) {
+      if (menuVisible) hideMenu();
+      else showMenu();
+      updateHintVisibility();
+    } else if (e.key === keyboardHideKey) {
+      if (menuVisible) hideMenu();
+      updateHintVisibility();
+    }
+  }
+
+  window.addEventListener("keydown", onKeyDown);
+
+  // Return a dispose function so callers can remove the global listener and hint
+  function dispose() {
+    disposed = true;
+    window.removeEventListener("keydown", onKeyDown);
+    if (hintEl && hintEl.parentElement)
+      hintEl.parentElement.removeChild(hintEl);
+    hintEl = null;
+  }
+
+  // Optionally: return show/hide for manual control and dispose
+  return { showMenu, hideMenu, dispose };
 }

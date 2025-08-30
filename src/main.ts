@@ -7,6 +7,7 @@ import { addVariedLandscape } from "./scenes/variedLandscape";
 import { COMMIT } from "./commit";
 import { setupResizeListener } from "./setup/resizeListener";
 import { updateManager } from "./setup/updateManager";
+import { eventBus } from "./core/eventBus";
 import { createVRDebugPanel } from "./core/vrDebugPanel";
 import { setupVRMenu } from "./ui/vrMenu";
 
@@ -90,11 +91,36 @@ setupResizeListener({
   parentEl: appEl,
 });
 
-setupVRMenu({
+const vrMenuController = setupVRMenu({
   sceneSwitcher,
   renderer,
   camera: userCamera,
   player,
+});
+
+// Ensure we clean up global listeners/hint on page unload
+window.addEventListener("beforeunload", () => {
+  if (
+    vrMenuController &&
+    typeof (vrMenuController as any).dispose === "function"
+  ) {
+    (vrMenuController as any).dispose();
+  }
+});
+window.addEventListener("unload", () => {
+  if (
+    vrMenuController &&
+    typeof (vrMenuController as any).dispose === "function"
+  ) {
+    (vrMenuController as any).dispose();
+  }
+});
+
+// Dispose VR menu when switching scenes so scene-specific UI is cleaned up
+eventBus.on<number>('scene:switch', () => {
+  if (vrMenuController && typeof (vrMenuController as any).dispose === 'function') {
+    (vrMenuController as any).dispose();
+  }
 });
 
 // Log commit hash so deployed builds can be traced
