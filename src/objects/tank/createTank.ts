@@ -10,6 +10,7 @@ export interface TankParams {
   detailScale?: number
   mobileMode?: boolean
   quality?: 'high' | 'low'
+  debugMaterial?: boolean
 }
 
 export type TankGroup = THREE.Group & {
@@ -37,6 +38,7 @@ const DEFAULTS: Required<TankParams> = {
   detailScale: 1.0,
   mobileMode: false,
   quality: 'high',
+  debugMaterial: false,
 }
 
 function buildBodyGeom(scale = 1) {
@@ -199,10 +201,13 @@ export function createTank(params: TankParams = {}): TankGroup {
   const root = new THREE.Group() as TankGroup
   root.scale.setScalar(p.scale)
 
-  const sharedMat = createTankMaterial(p)
+  // Allow a debug fallback material for easier visual debugging of placement/geometry
+  const sharedMat = p.debugMaterial ? new THREE.MeshStandardMaterial({ color: p.color }) : createTankMaterial(p)
 
   // Build parts
   const body = new THREE.Mesh(buildBodyGeom(p.scale), sharedMat)
+  // lift the body so bottom sits on y=0 (floor)
+  body.position.y = 0.4 * p.scale
   body.castShadow = true
   body.receiveShadow = true
 
@@ -279,19 +284,25 @@ export function createTank(params: TankParams = {}): TankGroup {
     const wheelRadius = 0.26 * p.scale
     const wheelAngle = distance / wheelRadius
     wheels.forEach(w => { w.rotation.x += wheelAngle })
-    // update track offset
-    ;(sharedMat.uniforms.trackOffset.value as number) = traveled * 0.5
+    // update track offset (guard for debug/material fallback)
+    if ((sharedMat as any).uniforms) {
+      ;((sharedMat as any).uniforms.trackOffset.value as number) = traveled * 0.5
+    }
   }
 
   function update(deltaTime: number) {
-    sharedMat.uniforms.time.value += deltaTime
+    if ((sharedMat as any).uniforms) {
+      (sharedMat as any).uniforms.time.value += deltaTime
+    }
     // if moving, animate subtle wheel rotation based on velocity
     if (Math.abs(velocity) > 1e-4) {
       const wheelRadius = 0.26 * p.scale
       const wheelAngle = (velocity * deltaTime) / wheelRadius
       wheels.forEach(w => { w.rotation.x += wheelAngle })
       traveled += Math.abs(velocity * deltaTime)
-      ;(sharedMat.uniforms.trackOffset.value as number) = traveled * 0.5
+      if ((sharedMat as any).uniforms) {
+        ;((sharedMat as any).uniforms.trackOffset.value as number) = traveled * 0.5
+      }
       // damp velocity slightly
       velocity *= 0.98
     }

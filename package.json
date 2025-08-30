@@ -5,18 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "node ./scripts/write-commit.cjs && vite --host",
+    "screenshot": "node ./scripts/screenshot.js",
     "build": "node ./scripts/write-commit.cjs && tsc && vite build",
     "preview": "vite preview",
     "deploy": "vite build && gh-pages -d dist"
   },
   "devDependencies": {
-    "@types/three": "^0.179.0",
     "@types/node": "^20.5.0",
+    "@types/three": "^0.179.0",
     "gh-pages": "^6.3.0",
-    "vite-plugin-mkcert": "^1.17.8",
+    "puppeteer": "^24.17.1",
     "typescript": "~5.8.3",
     "vite": "^7.1.2",
-    "vite-plugin-gh-pages": "^1.0.1"
+    "vite-plugin-gh-pages": "^1.0.1",
+    "vite-plugin-mkcert": "^1.17.8"
   },
   "dependencies": {
     "three": "^0.179.1"
