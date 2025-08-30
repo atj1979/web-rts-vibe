@@ -4,6 +4,7 @@ import { setupPlayer } from "./setup/setupPlayer";
 import { SceneSwitcher } from "./sceneSwitcher";
 import { addBasicWorld } from "./scenes/basicWorld";
 import { addVariedLandscape } from "./scenes/variedLandscape";
+import { addTankDemo } from "./scenes/tankDemo";
 import { COMMIT } from "./commit";
 import { setupResizeListener } from "./setup/resizeListener";
 import { updateManager } from "./setup/updateManager";
@@ -74,9 +75,10 @@ createVRDebugPanel(scene, player, userCamera);
 
 // --- Scene Switcher Setup ---
 const sceneSwitcher = new SceneSwitcher(scene);
+sceneSwitcher.registerScene("Tank Demo", addTankDemo);
 sceneSwitcher.registerScene("Basic World", addBasicWorld);
 sceneSwitcher.registerScene("Varied Landscape", addVariedLandscape);
-sceneSwitcher.switchTo(0); // Start with first scene
+sceneSwitcher.switchTo(0); // Start with Tank Demo
 sceneSwitcher.attachUIToLeftWrist();
 
 // Set user/player position after scene load
