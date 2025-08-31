@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { createTreeOak } from "../objects/tree_oak";
 import { createTreePine } from "../objects/tree_pine";
 import { createTreeBlossom } from "../objects/tree_blossom";
+import { createPanzerTank } from "../objects/thing/tank";
 
 /**
  * Adds a skybox and a floor to the given scene.
@@ -71,6 +72,8 @@ export function addBasicWorld(scene: THREE.Scene) {
     scene.add(tree);
     objects.push(tree);
   }
+
+  createPanzerTank();
 
   // Scene switcher contract:
   return {

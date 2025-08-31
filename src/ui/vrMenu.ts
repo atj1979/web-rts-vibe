@@ -12,7 +12,7 @@ export function setupVRMenu({
   sceneSwitcher,
   renderer,
   camera,
-  player,
+  menuTarget,
   // Optional keyboard config
   keyboardToggleKey = "m",
   keyboardHideKey = "Escape",
@@ -21,7 +21,7 @@ export function setupVRMenu({
   sceneSwitcher: SceneSwitcher;
   renderer: THREE.WebGLRenderer;
   camera: THREE.Camera;
-  player: THREE.Object3D;
+  menuTarget: { getObject3D: () => THREE.Object3D };
   keyboardToggleKey?: string;
   keyboardHideKey?: string;
   showKeyboardHint?: boolean;
@@ -67,10 +67,11 @@ export function setupVRMenu({
     vrDebugLog("VR Menu: showMenu called");
     if (menuPanel) return;
     menuPanel = createMenuPanel();
-    // Place in front of camera/player
+    // Place in front of menuTarget (can be player, tank, etc)
     const dist = 1.5;
     const pos = new THREE.Vector3(0, 1.5, -dist);
-    pos.applyMatrix4(player.matrixWorld);
+    const targetObj = menuTarget.getObject3D();
+    pos.applyMatrix4(targetObj.matrixWorld);
     menuPanel.position.copy(pos);
     // Face the camera
     menuPanel.quaternion.copy(camera.quaternion);

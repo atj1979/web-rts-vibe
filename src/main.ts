@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { setupPlayer } from "./setup/setupPlayer";
 import { SceneSwitcher } from "./sceneSwitcher";
 import { addBasicWorld } from "./scenes/basicWorld";
+import { createPanzerTank } from "./objects/thing/tank";
 import { addVariedLandscape } from "./scenes/variedLandscape";
 import { COMMIT } from "./commit";
 import { setupResizeListener } from "./setup/resizeListener";
@@ -69,6 +70,11 @@ if ("xr" in navigator) {
 }
 
 const { userCamera, player } = setupPlayer(renderer, scene);
+
+// Create the tank and add to scene
+const tank = createPanzerTank();
+tank.position.set(0, 0, 3); // Place tank closer to the camera
+scene.add(tank);
 // Create in-VR debug panel (pass camera so it always faces user)
 createVRDebugPanel(scene, player, userCamera);
 
@@ -95,7 +101,9 @@ const vrMenuController = setupVRMenu({
   sceneSwitcher,
   renderer,
   camera: userCamera,
-  player,
+  menuTarget: {
+    getObject3D: () => tank,
+  },
 });
 
 // Ensure we clean up global listeners/hint on page unload
@@ -142,6 +150,10 @@ function renderLoop() {
   const dt = Math.min(0.1, (now - last) / 1000);
   lastFrameTime = now;
   updateManager.updateAll({ deltaTime: dt });
+  // Update tank turret and barrel
+  if (typeof tank.userData.updateTurret === 'function') {
+    tank.userData.updateTurret(userCamera);
+  }
   renderer.render(scene, userCamera);
 }
 
