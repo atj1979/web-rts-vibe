@@ -47,7 +47,7 @@ export function addTankDemo(scene: THREE.Scene) {
       }
     },
     getSpawnPosition() {
-      return new THREE.Vector3(0, 1.2, 6);
+  return new THREE.Vector3(0, 1.2, 3);
     },
   };
 }
