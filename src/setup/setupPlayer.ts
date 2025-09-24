@@ -24,9 +24,10 @@ export function setupPlayer(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
     0.1,
     1000
   );
-  // Set initial camera position and orientation
-  userCamera.position.set(-2, 2, 7);
-  userCamera.lookAt(0, 1, 0);
+  // Set initial camera position relative to player (eye height)
+  userCamera.position.set(0, 1.7, 0);
+  // Camera rotation will be controlled by look controller - start with no rotation
+  userCamera.rotation.set(0, 0, 0);
   player.add(userCamera);
 
   // Setup VR hands and controller models (hand-tracking with controller fallback)

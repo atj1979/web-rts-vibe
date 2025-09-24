@@ -21,17 +21,24 @@ export function createLookController(
   const state = {
     enabled: true,
     // radians per second when using keys
-    keyRotateSpeed: Math.PI * 0.9,
-    // mouse sensitivity multiplier
-    mouseSensitivity: 0.0025,
-  } as LookController & { mouseSensitivity: number; keyRotateSpeed: number };
+    keyRotateSpeed: Math.PI * 2.0, // faster key turning
+    // mouse sensitivity multiplier - higher for FPS feel
+    mouseSensitivityX: 0.015, // horizontal sensitivity
+    mouseSensitivityY: 0.012, // vertical sensitivity (slightly less for comfort)
+    invertY: false, // option to invert vertical look
+  } as LookController & { 
+    mouseSensitivityX: number; 
+    mouseSensitivityY: number; 
+    keyRotateSpeed: number;
+    invertY: boolean;
+  };
 
   let turningLeft = false;
   let turningRight = false;
 
   // Track pitch on the camera (in radians) and clamp it
   let pitch = (camera.rotation.x || 0);
-  const PITCH_LIMIT = Math.PI / 2 - 0.05; // slightly less than +/-90deg
+  const PITCH_LIMIT = Math.PI / 2 - 0.1; // allow nearly 90 degrees up/down for FPS feel
 
   function onMouseMove(e: MouseEvent) {
     // if XR session is active, ignore
@@ -44,10 +51,11 @@ export function createLookController(
     const dy = e.movementY || 0;
 
     // Yaw: rotate the player group about Y
-    player.rotation.y -= dx * state.mouseSensitivity;
+    player.rotation.y -= dx * state.mouseSensitivityX;
 
     // Pitch: rotate the camera locally on X axis
-    pitch -= dy * state.mouseSensitivity;
+    const pitchDelta = dy * state.mouseSensitivityY * (state.invertY ? -1 : 1);
+    pitch -= pitchDelta;
     pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, pitch));
     camera.rotation.x = pitch;
   }
