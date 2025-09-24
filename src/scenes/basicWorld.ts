@@ -1,7 +1,5 @@
 import * as THREE from "three";
-import { createTreeOak } from "../objects/tree/tree_oak";
-import { createTreePine } from "../objects/tree/tree_pine";
-import { createTreeBlossom } from "../objects/tree/tree_blossom";
+import { createGrass } from "../objects/grass";
 
 /**
  * Adds a skybox and a floor to the given scene.
@@ -56,20 +54,24 @@ export function addBasicWorld(scene: THREE.Scene) {
   scene.add(grid);
   objects.push(grid);
 
-  // --- Random Trees ---
-  const treeTypes = [createTreeOak, createTreePine, createTreeBlossom];
-  const numTrees = 20;
+  // --- Random Grass Patches ---
+  const numGrass = 50;
   const minRadius = 8; // avoid center
   const maxRadius = 80;
-  for (let i = 0; i < numTrees; i++) {
-    const type = treeTypes[Math.floor(Math.random() * treeTypes.length)];
-    const tree = type();
+  for (let i = 0; i < numGrass; i++) {
+    const grass = createGrass({
+      color: new THREE.Color(0x228B22).offsetHSL(Math.random() * 0.1 - 0.05, Math.random() * 0.2 - 0.1, Math.random() * 0.1 - 0.05), // vary green shades
+      size: 0.8 + Math.random() * 0.7, // 0.8 to 1.5
+      fill: 10 + Math.floor(Math.random() * 10), // 10 to 20 blades
+      windStrength: 0.3 + Math.random() * 0.4, // 0.3 to 0.7
+      bladeWidth: 0.003 + Math.random() * 0.007, // 0.003 to 0.01
+    });
     const angle = Math.random() * Math.PI * 2;
     const radius = minRadius + Math.random() * (maxRadius - minRadius);
-    tree.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-    tree.rotation.y = Math.random() * Math.PI * 2;
-    scene.add(tree);
-    objects.push(tree);
+    grass.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+    grass.rotation.y = Math.random() * Math.PI * 2;
+    scene.add(grass);
+    objects.push(grass);
   }
 
   // Scene switcher contract:
