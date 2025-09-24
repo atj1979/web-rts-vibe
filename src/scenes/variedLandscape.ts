@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { createTreeOak } from "../objects/tree/tree_oak";
 import { createTreePine } from "../objects/tree/tree_pine";
 import { createTreeBlossom } from "../objects/tree/tree_blossom";
+import { createTestSphere } from "../objects/testSphere";
 import { getGlobalGroundPlacer } from "../core/groundPlacement";
 
 // Simple 2D noise function (not true Perlin, but enough for demo)
@@ -88,6 +89,12 @@ export function addVariedLandscape(scene: THREE.Scene) {
     scene.add(tree);
     objects.push(tree);
   }
+
+  // --- Test Sphere for terrain ground placement ---
+  const testSphere = createTestSphere({ color: 0xff0000 }); // red sphere for terrain
+  groundPlacer.placeObject(testSphere, 10, 10); // Place at (10, 10) on terrain
+  scene.add(testSphere);
+  objects.push(testSphere);
 
   // Scene switcher contract:
   return {

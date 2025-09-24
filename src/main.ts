@@ -11,6 +11,7 @@ import { updateManager } from "./setup/updateManager";
 import { eventBus } from "./core/eventBus";
 import { createVRDebugPanel } from "./core/vrDebugPanel";
 import { setupVRMenu } from "./ui/vrMenu";
+import { getCurrentGlobalGroundPlacer } from "./core/groundPlacement";
 
 // Create scene and renderer
 const scene = new THREE.Scene();
@@ -85,7 +86,16 @@ sceneSwitcher.attachUIToLeftWrist();
 // Set user/player position after scene load
 const setPlayerToSceneSpawn = () => {
   const spawn = sceneSwitcher.getSpawnPosition();
-  if (player) player.position.set(spawn.x, spawn.y, spawn.z);
+  if (player) {
+    const groundPlacer = getCurrentGlobalGroundPlacer();
+    if (groundPlacer) {
+      const groundHeight = groundPlacer.getGroundHeight(spawn.x, spawn.z);
+      player.position.set(spawn.x, groundHeight + 1.7, spawn.z);
+    } else {
+      // Fallback if ground placer not ready
+      player.position.set(spawn.x, spawn.y, spawn.z);
+    }
+  }
 };
 setPlayerToSceneSpawn();
 setupResizeListener({

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { createFlower } from "../objects/flower";
+import { createTestSphere } from "../objects/testSphere";
 import { getGlobalGroundPlacer } from "../core/groundPlacement";
 
 /**
@@ -55,22 +55,33 @@ export function addBasicWorld(scene: THREE.Scene) {
   scene.add(grid);
   objects.push(grid);
 
-  // --- Random Flowers ---
-  const numFlowers = 50;
-  const minRadius = 8; // avoid center
-  const maxRadius = 80;
+  // --- Many Test Spheres for ground placement testing ---
+  const numSpheres = 100;
+  const minRadius = 5; // avoid center
+  const maxRadius = 90;
+  const sphereColors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff]; // red, green, blue, yellow, magenta, cyan
   const groundPlacer = getGlobalGroundPlacer(scene);
-  for (let i = 0; i < numFlowers; i++) {
-    const flower = createFlower();
+  for (let i = 0; i < numSpheres; i++) {
+    const color = sphereColors[Math.floor(Math.random() * sphereColors.length)];
+    const sphere = createTestSphere({ 
+      color: color,
+      radius: 0.3 + Math.random() * 0.4 // 0.3 to 0.7 radius
+    });
     const angle = Math.random() * Math.PI * 2;
     const radius = minRadius + Math.random() * (maxRadius - minRadius);
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
-    groundPlacer.placeObject(flower, x, z);
-    flower.rotation.y = Math.random() * Math.PI * 2;
-    scene.add(flower);
-    objects.push(flower);
+    groundPlacer.placeObject(sphere, x, z);
+    sphere.rotation.y = Math.random() * Math.PI * 2;
+    scene.add(sphere);
+    objects.push(sphere);
   }
+
+  // --- Single Test Sphere for reference ---
+  const testSphere = createTestSphere({ color: 0xffffff }); // white sphere for reference
+  groundPlacer.placeObject(testSphere, 0, 0); // Place at origin
+  scene.add(testSphere);
+  objects.push(testSphere);
 
   // Scene switcher contract:
   return {

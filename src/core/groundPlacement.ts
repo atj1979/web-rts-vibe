@@ -27,6 +27,7 @@ import * as THREE from 'three';
  * - **GroundPlacer**: Per-scene instance that handles placement logic
  * - **Global Instance**: Automatically updated when scenes change via SceneSwitcher
  * - **Auto-Detection**: Analyzes scene content to determine appropriate ground type
+ * - **Bottom-Aligned**: Objects are placed so their bottom touches the ground surface
  * - **Extensible**: Easy to add new ground types or customize behavior
  *
  * ## Usage Examples:
@@ -71,8 +72,8 @@ import * as THREE from 'three';
  *
  * Usage:
  *   const placer = createGroundPlacer(scene);
- *   placer.placeObject(myObject, x, z); // Places at (x, groundHeight, z)
- *   placer.placeObjectAt(myObject, new THREE.Vector3(x, y, z)); // Places at ground height for x,z
+ *   placer.placeObject(myObject, x, z); // Places at (x, groundHeight, z) with bottom touching ground
+ *   placer.placeObjectAt(myObject, new THREE.Vector3(x, y, z)); // Places at ground height for x,z with bottom touching ground
  */
 
 export type GroundType = 'flat' | 'terrain' | 'raycast';
@@ -171,16 +172,34 @@ export function createGroundPlacer(scene: THREE.Scene): GroundPlacer {
       return currentConfig.defaultHeight || 0; // Outside terrain bounds
     }
 
-    // Sample height from terrain geometry
+    // Sample height from terrain geometry with bilinear interpolation for smooth terrain
     const verts = geometry.attributes.position;
     const segments = Math.sqrt(verts.count) - 1; // Assuming square grid
 
-    const ix = Math.floor(u * segments);
-    const iy = Math.floor(v * segments);
+    // Get fractional position within grid cell
+    const fx = u * segments;
+    const fy = v * segments;
+    const ix = Math.floor(fx);
+    const iy = Math.floor(fy);
+    const dx = fx - ix;
+    const dy = fy - iy;
 
     if (ix >= 0 && ix < segments && iy >= 0 && iy < segments) {
-      const idx = iy * (segments + 1) + ix;
-      const height = verts.getZ(idx);
+      // Get heights of the four surrounding vertices
+      const idx00 = iy * (segments + 1) + ix;
+      const idx10 = iy * (segments + 1) + (ix + 1);
+      const idx01 = (iy + 1) * (segments + 1) + ix;
+      const idx11 = (iy + 1) * (segments + 1) + (ix + 1);
+
+      const h00 = verts.getZ(idx00);
+      const h10 = verts.getZ(idx10);
+      const h01 = verts.getZ(idx01);
+      const h11 = verts.getZ(idx11);
+
+      // Bilinear interpolation
+      const h0 = h00 * (1 - dx) + h10 * dx;
+      const h1 = h01 * (1 - dx) + h11 * dx;
+      const height = h0 * (1 - dy) + h1 * dy;
 
       // Transform height to world space (terrain might be rotated/scaled)
       return height + terrain.position.y;
@@ -205,14 +224,48 @@ export function createGroundPlacer(scene: THREE.Scene): GroundPlacer {
     return currentConfig.defaultHeight || 0;
   }
 
+  function getObjectBottomOffset(object: THREE.Object3D): number {
+    // Calculate how much to offset the object so its bottom touches the ground
+    // instead of its center/origin
+
+    object.updateMatrixWorld();
+
+    // Special case: trees and tanks should have their bottom at y=0 (origin) touch the ground
+    if (object.name && (object.name.includes('tree_') || object.name === 'tank')) {
+      return 0;
+    }
+
+    // Check if this is a simple sphere geometry
+    const meshes: THREE.Mesh[] = [];
+    object.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry) {
+        meshes.push(child);
+      }
+    });
+
+    if (meshes.length === 1) {
+      // For spheres, offset by the radius
+      const sphereGeo = meshes[0].geometry as THREE.SphereGeometry;
+      const radius = sphereGeo.parameters?.radius || 1;
+      return radius;
+    }
+
+    // For other objects, calculate bounding box and offset by half height
+    const bbox = new THREE.Box3().setFromObject(object);
+    const height = bbox.max.y - bbox.min.y;
+    return height / 2;
+  }
+
   function placeObject(object: THREE.Object3D, x: number, z: number): void {
     const groundHeight = getGroundHeight(x, z);
-    object.position.set(x, groundHeight, z);
+    const bottomOffset = getObjectBottomOffset(object);
+    object.position.set(x, groundHeight + bottomOffset, z);
   }
 
   function placeObjectAt(object: THREE.Object3D, position: THREE.Vector3): void {
     const groundHeight = getGroundHeight(position.x, position.z);
-    object.position.set(position.x, groundHeight, position.z);
+    const bottomOffset = getObjectBottomOffset(object);
+    object.position.set(position.x, groundHeight + bottomOffset, position.z);
   }
 
   function updateConfig(newConfig: Partial<GroundConfig>): void {
@@ -235,17 +288,16 @@ let globalGroundPlacer: GroundPlacer | null = null;
 
 /**
  * Get or create the global ground placer for the current scene.
+ * Always creates a fresh ground placer for the given scene.
  */
 export function getGlobalGroundPlacer(scene: THREE.Scene): GroundPlacer {
-  if (!globalGroundPlacer) {
-    globalGroundPlacer = createGroundPlacer(scene);
-  }
+  globalGroundPlacer = createGroundPlacer(scene);
   return globalGroundPlacer;
 }
 
 /**
- * Update the global ground placer when switching scenes.
+ * Get the current global ground placer (must be initialized first).
  */
-export function updateGlobalGroundPlacer(scene: THREE.Scene): void {
-  globalGroundPlacer = createGroundPlacer(scene);
+export function getCurrentGlobalGroundPlacer(): GroundPlacer | null {
+  return globalGroundPlacer;
 }

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getCurrentGlobalGroundPlacer } from '../core/groundPlacement';
 
 /**
  * Movement controller.
@@ -25,7 +26,7 @@ type MovementController = {
 export function createMovementController(player: THREE.Object3D, renderer: THREE.WebGLRenderer): MovementController {
   const state = {
     enabled: true,
-    speed: 2.5, // m/s
+    speed: 5.0, // m/s (increased from 2.5 for 2x speed)
   } as MovementController;
 
   // Keyboard fallback state
@@ -102,7 +103,16 @@ export function createMovementController(player: THREE.Object3D, renderer: THREE
 
     // Update player position
     player.position.add(move);
-  } as any;
+
+    // Follow ground contours: adjust Y position to match ground height
+    const groundPlacer = getCurrentGlobalGroundPlacer();
+    if (groundPlacer) {
+      const groundHeight = groundPlacer.getGroundHeight(player.position.x, player.position.z);
+      // For player, we want their feet at ground level (player is at eye height, so offset down)
+      // Assuming player camera is at 1.7m above player position
+      player.position.y = groundHeight + 1.7;
+    }
+  };
 
   state.dispose = function () {
     window.removeEventListener('keydown', onKey);

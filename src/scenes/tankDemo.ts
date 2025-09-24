@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { createTank } from '../objects/tank/createTank';
 import { createKeep } from '../objects/keep/createKeep';
+import { createTestSphere } from '../objects/testSphere';
 import { getGlobalGroundPlacer } from '../core/groundPlacement';
 
 export function addTankDemo(scene: THREE.Scene) {
@@ -62,6 +63,12 @@ export function addTankDemo(scene: THREE.Scene) {
   const amb = new THREE.AmbientLight(0xffffff, 0.25);
   scene.add(amb);
   objects.push(amb);
+
+  // --- Test Sphere for flat ground placement ---
+  const testSphere = createTestSphere({ color: 0x0000ff }); // blue sphere for tank demo
+  groundPlacer.placeObject(testSphere, -3, 3); // Place at (-3, 3) on ground
+  scene.add(testSphere);
+  objects.push(testSphere);
 
   return {
     dispose() {
