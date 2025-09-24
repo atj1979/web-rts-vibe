@@ -75,10 +75,11 @@ createVRDebugPanel(scene, player, userCamera);
 
 // --- Scene Switcher Setup ---
 const sceneSwitcher = new SceneSwitcher(scene);
-sceneSwitcher.registerScene("Tank Demo", addTankDemo);
+// Register Basic World first so index 0 opens it by default
 sceneSwitcher.registerScene("Basic World", addBasicWorld);
+sceneSwitcher.registerScene("Tank Demo", addTankDemo);
 sceneSwitcher.registerScene("Varied Landscape", addVariedLandscape);
-sceneSwitcher.switchTo(0); // Start with Tank Demo
+sceneSwitcher.switchTo(0); // Start with Basic World
 sceneSwitcher.attachUIToLeftWrist();
 
 // Set user/player position after scene load

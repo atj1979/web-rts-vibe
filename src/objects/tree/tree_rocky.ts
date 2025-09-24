@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createNameSprite } from '../core/nameSprite';
+import { createNameSprite } from '../../core/nameSprite';
 
 export function createTreeRocky(): THREE.Group {
   const g = new THREE.Group();

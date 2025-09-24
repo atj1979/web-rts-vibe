@@ -1,7 +1,7 @@
 import * as THREE from "three";
-import { createTreeOak } from "../objects/tree_oak";
-import { createTreePine } from "../objects/tree_pine";
-import { createTreeBlossom } from "../objects/tree_blossom";
+import { createTreeOak } from "../objects/tree/tree_oak";
+import { createTreePine } from "../objects/tree/tree_pine";
+import { createTreeBlossom } from "../objects/tree/tree_blossom";
 
 /**
  * Adds a skybox and a floor to the given scene.

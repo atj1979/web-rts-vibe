@@ -1,7 +1,7 @@
 import * as THREE from "three";
-import { createTreeOak } from "../objects/tree_oak";
-import { createTreePine } from "../objects/tree_pine";
-import { createTreeBlossom } from "../objects/tree_blossom";
+import { createTreeOak } from "../objects/tree/tree_oak";
+import { createTreePine } from "../objects/tree/tree_pine";
+import { createTreeBlossom } from "../objects/tree/tree_blossom";
 
 // Simple 2D noise function (not true Perlin, but enough for demo)
 function pseudoNoise(x: number, y: number) {
