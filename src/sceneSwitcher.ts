@@ -16,6 +16,7 @@
 import * as THREE from "three";
 import { eventBus } from "./core/eventBus";
 import { store } from "./core/store";
+import { updateGlobalGroundPlacer } from "./core/groundPlacement";
 
 export type SceneSetupResult = {
   dispose: () => void;
@@ -56,6 +57,8 @@ export class SceneSwitcher {
     this.currentCleanup = result.dispose;
     this.currentGetSpawn = result.getSpawnPosition;
     this.currentSceneIdx = idx;
+    // Update ground placement system for new scene
+    updateGlobalGroundPlacer(this.scene);
     // Update global store
     store.set({
       currentSceneIdx: idx,

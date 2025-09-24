@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { createTreeOak } from "../objects/tree/tree_oak";
 import { createTreePine } from "../objects/tree/tree_pine";
 import { createTreeBlossom } from "../objects/tree/tree_blossom";
+import { getGlobalGroundPlacer } from "../core/groundPlacement";
 
 // Simple 2D noise function (not true Perlin, but enough for demo)
 function pseudoNoise(x: number, y: number) {
@@ -74,24 +75,15 @@ export function addVariedLandscape(scene: THREE.Scene) {
   const numTrees = 30;
   const minRadius = 10;
   const maxRadius = 90;
+  const groundPlacer = getGlobalGroundPlacer(scene);
   for (let i = 0; i < numTrees; i++) {
     const type = treeTypes[Math.floor(Math.random() * treeTypes.length)];
     const tree = type();
     const angle = Math.random() * Math.PI * 2;
     const radius = minRadius + Math.random() * (maxRadius - minRadius);
     const x = Math.cos(angle) * radius;
-    const y = Math.sin(angle) * radius;
-    // Find terrain height at (x, y)
-    const u = ((x + size / 2) / size) * segments;
-    const v = ((y + size / 2) / size) * segments;
-    const ix = Math.floor(u);
-    const iy = Math.floor(v);
-    let z = 0;
-    if (ix >= 0 && ix < segments && iy >= 0 && iy < segments) {
-      const idx = iy * (segments + 1) + ix;
-      z = verts.getZ(idx);
-    }
-    tree.position.set(x, z, y);
+    const z = Math.sin(angle) * radius;
+    groundPlacer.placeObject(tree, x, z);
     tree.rotation.y = Math.random() * Math.PI * 2;
     scene.add(tree);
     objects.push(tree);

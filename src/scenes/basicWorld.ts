@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { createFlower } from "../objects/flower";
+import { getGlobalGroundPlacer } from "../core/groundPlacement";
 
 /**
  * Adds a skybox and a floor to the given scene.
@@ -58,11 +59,14 @@ export function addBasicWorld(scene: THREE.Scene) {
   const numFlowers = 50;
   const minRadius = 8; // avoid center
   const maxRadius = 80;
+  const groundPlacer = getGlobalGroundPlacer(scene);
   for (let i = 0; i < numFlowers; i++) {
     const flower = createFlower();
     const angle = Math.random() * Math.PI * 2;
     const radius = minRadius + Math.random() * (maxRadius - minRadius);
-    flower.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+    groundPlacer.placeObject(flower, x, z);
     flower.rotation.y = Math.random() * Math.PI * 2;
     scene.add(flower);
     objects.push(flower);
