@@ -1,7 +1,9 @@
 import * as THREE from 'three';
+import { createNameSprite } from '../core/nameSprite';
 
 export function createTreeSwamp(): THREE.Group {
   const g = new THREE.Group();
+  g.name = 'tree_swamp'
 
   const trunk = new THREE.Mesh(
     new THREE.CylinderGeometry(0.14, 0.16, 1.0, 8),
@@ -27,6 +29,10 @@ export function createTreeSwamp(): THREE.Group {
     moss.rotation.x = Math.PI / 2 * 0.8;
     g.add(moss);
   }
+
+  const sprite = createNameSprite('Swamp Tree', Math.floor(Math.random() * 10000));
+  sprite.position.set(0, 1.8, 0);
+  g.add(sprite);
 
   return g;
 }

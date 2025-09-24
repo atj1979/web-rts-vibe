@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { createNameSprite } from '../../core/nameSprite'
 
 export interface TankParams {
   seed?: number
@@ -200,6 +201,11 @@ export function createTank(params: TankParams = {}): TankGroup {
   const p = { ...DEFAULTS, ...(params || {}) }
   const root = new THREE.Group() as TankGroup
   root.scale.setScalar(p.scale)
+  root.name = `tank`
+  // attach identification sprite
+  const sprite = createNameSprite('Tank', Math.floor(Math.random() * 10000))
+  sprite.position.set(0, 1.6 * p.scale, 0)
+  root.add(sprite)
 
   // Allow a debug fallback material for easier visual debugging of placement/geometry
   const sharedMat = p.debugMaterial ? new THREE.MeshStandardMaterial({ color: p.color }) : createTankMaterial(p)

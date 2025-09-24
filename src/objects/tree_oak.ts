@@ -1,7 +1,9 @@
 import * as THREE from 'three';
+import { createNameSprite } from '../core/nameSprite';
 
 export function createTreeOak(): THREE.Group {
   const g = new THREE.Group();
+  g.name = 'tree_oak'
 
   // Trunk
   const trunk = new THREE.Mesh(
@@ -26,6 +28,11 @@ export function createTreeOak(): THREE.Group {
   );
   bush.position.set(0.4, 0.18, -0.2);
   g.add(bush);
+
+  // attach name sprite
+  const sprite = createNameSprite('Oak Tree', Math.floor(Math.random() * 10000));
+  sprite.position.set(0, 2.2, 0);
+  g.add(sprite);
 
   return g;
 }

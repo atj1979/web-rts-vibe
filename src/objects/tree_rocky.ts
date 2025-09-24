@@ -1,7 +1,9 @@
 import * as THREE from 'three';
+import { createNameSprite } from '../core/nameSprite';
 
 export function createTreeRocky(): THREE.Group {
   const g = new THREE.Group();
+  g.name = 'tree_rocky'
 
   const trunk = new THREE.Mesh(
     new THREE.CylinderGeometry(0.14, 0.18, 1.0, 10),
@@ -24,6 +26,10 @@ export function createTreeRocky(): THREE.Group {
   );
   rock.position.set(0.45, 0.12, 0.1);
   g.add(rock);
+
+  const sprite = createNameSprite('Rocky Tree', Math.floor(Math.random() * 10000));
+  sprite.position.set(0, 1.8, 0);
+  g.add(sprite);
 
   return g;
 }

@@ -45,7 +45,16 @@ export function createVRDebugPanel(
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
     const start = new THREE.Vector3(x, 6, z);
-    const end = panelMesh.position.clone();
+    // If there is a keep object in the scene, point lines at it; otherwise to the panel
+    const keepObj = scene.getObjectByName('keep');
+    let end: THREE.Vector3;
+    if (keepObj) {
+      keepObj.updateMatrixWorld();
+      end = new THREE.Vector3();
+      keepObj.getWorldPosition(end);
+    } else {
+      end = panelMesh.position.clone();
+    }
     const points = [start, end];
     const geom = new THREE.BufferGeometry().setFromPoints(points);
     const line = new THREE.Line(geom, lineMat);
@@ -83,14 +92,20 @@ export function createVRDebugPanel(
     const rad = THREE.MathUtils.degToRad(degPerSec * dt);
     panelMesh.rotateY(rad);
 
-    // Update lines to point to new panel position
+    // Update lines to point to the keep (if present) or panel position
+    const keepObj = scene.getObjectByName('keep');
+    let targetPos = panelMesh.position.clone();
+    if (keepObj) {
+      keepObj.updateMatrixWorld();
+      keepObj.getWorldPosition(targetPos);
+    }
     for (let i = 0; i < debugLines.length; ++i) {
       const angle = (i / debugLines.length) * Math.PI * 2;
       const radius = 1.5;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
       const start = new THREE.Vector3(x, 6, z);
-      const end = panelMesh.position.clone();
+      const end = targetPos.clone();
       const points = [start, end];
       const geom = new THREE.BufferGeometry().setFromPoints(points);
       debugLines[i].geometry.dispose();

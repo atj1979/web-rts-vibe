@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { createTank } from '../objects/tank/createTank';
+import { createKeep } from '../objects/keep/createKeep';
 
 export function addTankDemo(scene: THREE.Scene) {
   const objects: THREE.Object3D[] = [];
@@ -19,6 +20,30 @@ export function addTankDemo(scene: THREE.Scene) {
   tank.rotation.y = Math.PI; // face forward
   scene.add(tank);
   objects.push(tank as any);
+
+  // Add the circular keep (instanced bricks) — placed to the left of the tank
+  const keep = createKeep({ radius: 15, portcullisWidth: 4, portcullisHeight: 7, brickDepth: 0.33, bricksPerLayer: 16, layers: 20 });
+  // Position keep in front of the user camera (player) when possible
+  const playerObj = scene.getObjectByName('player');
+  if (playerObj) {
+    playerObj.updateMatrixWorld();
+    const pos = new THREE.Vector3();
+    playerObj.getWorldPosition(pos);
+    const quat = new THREE.Quaternion();
+    playerObj.getWorldQuaternion(quat);
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(quat);
+    const distance = 3; // meters in front of camera
+    // Place keep on ground (y = 0) in front of player so tall tower bases sit on floor
+    const target = pos.clone().add(forward.multiplyScalar(distance));
+    keep.group.position.set(target.x, 0, target.z);
+    // orient the keep to face the player horizontally
+    keep.group.lookAt(pos.x, 0, pos.z);
+  } else {
+    // fallback
+    keep.group.position.set(-6, 0, 0);
+  }
+  scene.add(keep.group);
+  objects.push(keep.group as any);
 
   // Add a simple marker cube near the tank
   const mark = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), new THREE.MeshStandardMaterial({ color: 0xff4444 }));
