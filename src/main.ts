@@ -13,9 +13,14 @@ import { createVRDebugPanel } from "./core/vrDebugPanel";
 import { setupVRMenu } from "./ui/vrMenu";
 import { createFPSCounter } from "./ui/fpsCounter";
 import { getCurrentGlobalGroundPlacer } from "./core/groundPlacement";
+import { updateCulling } from "./core/visibilityCuller";
+import { enableAutoCulling } from "./core/visibilityCuller";
 
 // Create scene and renderer
 const scene = new THREE.Scene();
+
+// Enable automatic culling for scene meshes (hands-off). Default options register Mesh/InstancedMesh recursively.
+enableAutoCulling(scene, { recursive: true, dynamic: false, padding: 0 });
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.xr.enabled = true;
@@ -77,6 +82,16 @@ if ("xr" in navigator) {
 const { userCamera, player } = setupPlayer(renderer, scene);
 // Create in-VR debug panel (pass camera so it always faces user)
 createVRDebugPanel(scene, player, userCamera);
+
+// Register a per-frame culling pass so static objects are hidden when off-screen
+updateManager.register(() => {
+  try {
+    updateCulling(userCamera);
+  } catch (err) {
+    // Protect the render loop from culling errors
+    console.warn('Culling update failed', err);
+  }
+});
 
 // --- Scene Switcher Setup ---
 const sceneSwitcher = new SceneSwitcher(scene);

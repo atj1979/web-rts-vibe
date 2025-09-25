@@ -6,6 +6,7 @@ import { createTestSphere } from "../objects/testSphere";
 import { createGrass } from "../objects/grass";
 import { createFlower } from "../objects/flower";
 import { getGlobalGroundPlacer } from "../core/groundPlacement";
+// Note: auto-culling is enabled globally; manual registerForCulling isn't required here.
 
 // Simple 2D noise function (not true Perlin, but enough for demo)
 function pseudoNoise(x: number, y: number) {
@@ -151,7 +152,15 @@ export function addVariedLandscape(scene: THREE.Scene) {
   return {
     dispose() {
       for (const obj of objects) {
+        // Remove from scene
         scene.remove(obj);
+        // If an object registered its own culler before global auto-culling was enabled,
+        // call its unregister helper if present.
+        try {
+          const u = (obj as any).__unregisterCuller;
+          if (typeof u === "function") u();
+        } catch (_) {}
+        // Dispose geometry/material if present
         if ((obj as any).geometry) (obj as any).geometry.dispose?.();
         if ((obj as any).material) (obj as any).material.dispose?.();
       }
