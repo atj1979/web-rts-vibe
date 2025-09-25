@@ -1,13 +1,13 @@
-import * as THREE from 'three';
-import { createNameSprite } from '../../core/nameSprite';
+import * as THREE from "three";
+import { createNameSprite } from "../../core/nameSprite";
 
 export function createTreeDead(): THREE.Group {
   const g = new THREE.Group();
-  g.name = 'tree_dead'
+  g.name = "tree_dead";
 
   const trunk = new THREE.Mesh(
     new THREE.CylinderGeometry(0.16, 0.18, 1.3, 8),
-    new THREE.MeshStandardMaterial({ color: 0x4a3423 })
+    new THREE.MeshStandardMaterial({ color: 0x4a3423 }),
   );
   trunk.position.y = 0.65;
   g.add(trunk);
@@ -16,14 +16,17 @@ export function createTreeDead(): THREE.Group {
   for (let i = 0; i < 5; i++) {
     const branch = new THREE.Mesh(
       new THREE.CylinderGeometry(0.02, 0.03, 0.7, 6),
-      new THREE.MeshStandardMaterial({ color: 0x3b2b20 })
+      new THREE.MeshStandardMaterial({ color: 0x3b2b20 }),
     );
     branch.position.set(Math.cos(i) * 0.25, 1.05 + i * 0.02, Math.sin(i) * 0.1);
-    branch.rotation.z = Math.PI / 4 * (i % 2 === 0 ? 1 : -1);
+    branch.rotation.z = (Math.PI / 4) * (i % 2 === 0 ? 1 : -1);
     g.add(branch);
   }
 
-  const sprite = createNameSprite('Dead Tree', Math.floor(Math.random() * 10000));
+  const sprite = createNameSprite(
+    "Dead Tree",
+    Math.floor(Math.random() * 10000),
+  );
   sprite.position.set(0, 1.6, 0);
   g.add(sprite);
 

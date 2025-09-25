@@ -149,8 +149,11 @@ window.addEventListener("unload", () => {
 });
 
 // Dispose VR menu when switching scenes so scene-specific UI is cleaned up
-eventBus.on<number>('scene:switch', () => {
-  if (vrMenuController && typeof (vrMenuController as any).dispose === 'function') {
+eventBus.on<number>("scene:switch", () => {
+  if (
+    vrMenuController &&
+    typeof (vrMenuController as any).dispose === "function"
+  ) {
     (vrMenuController as any).dispose();
   }
 });
@@ -173,7 +176,6 @@ function renderLoop() {
   const last = lastFrameTime || now;
   const dt = Math.min(0.1, (now - last) / 1000);
   lastFrameTime = now;
-
 
   updateManager.updateAll({ deltaTime: dt });
 

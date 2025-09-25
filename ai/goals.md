@@ -10,11 +10,11 @@ The section of # Project Goals may not be modified by AI Agents.
 ---
 
 ## How to Use This File
+
 - Add, update, or check off goals as the project progresses.g
 - Use Markdown formatting for sections, lists, and checkboxes.
 
 ---
-
 
 ## Feature Ideas
 
@@ -30,6 +30,3 @@ The section of # Project Goals may not be modified by AI Agents.
 - Environmental ability: summon weather or cloud cover to block enemy vision (dynamic fog/clouds affecting line-of-sight)
 - Gameplay mechanic: VR training mini-game where the player performs physical VR movements to 'train' or temporarily boost unit stats (e.g., execute reload motions to increase a mortar's fire-rate)
 - Cinematic/interactive defeat scene: when the player is losing, trigger a scene where an NPC warns the player and the player can 'flip the table' (physically in VR) to cause environmental destruction; instead of a score, the losing player receives a temporary comeback boost (for example: resource surge, unit repair, or a short buff) to help even the game
- 
-
-

@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 /**
  * Creates a simple person model using basic Three.js shapes.
@@ -61,7 +61,6 @@ export function createPerson(): THREE.Group {
   belt.position.y = 0.78;
   belt.rotation.x = Math.PI / 2;
   person.add(belt);
-
 
   // Arm/Hand geometry/materials
   const sleeveGeometry = new THREE.CylinderGeometry(0.09, 0.09, 0.22, 16);

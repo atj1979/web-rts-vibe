@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 type CullEntry = {
   obj: THREE.Object3D;
@@ -34,7 +34,10 @@ export type RegisterOptions = {
  *  - padding: extra radius to add to sphere
  *  - sphere: explicit sphere to use (world-space)
  */
-export function registerForCulling(obj: THREE.Object3D, opts?: RegisterOptions) {
+export function registerForCulling(
+  obj: THREE.Object3D,
+  opts?: RegisterOptions,
+) {
   const padding = opts?.padding ?? 0;
   const recomputeEveryFrame = !!opts?.dynamic;
 
@@ -43,7 +46,7 @@ export function registerForCulling(obj: THREE.Object3D, opts?: RegisterOptions) 
   // Helper to (re)compute the world-space bounding sphere for this object
   function computeBounds() {
     // Ensure this object's world matrices are up-to-date before computing bounds
-  obj.updateWorldMatrix(true, false);
+    obj.updateWorldMatrix(true, false);
     _box.setFromObject(obj);
     if (_box.isEmpty()) {
       // fallback: small sphere at object's world position
@@ -82,7 +85,7 @@ export function registerForCulling(obj: THREE.Object3D, opts?: RegisterOptions) 
 export function updateBoundsFor(obj: THREE.Object3D) {
   for (const e of entries) {
     if (e.obj === obj) {
-  obj.updateWorldMatrix(true, false);
+      obj.updateWorldMatrix(true, false);
       _box.setFromObject(obj);
       if (_box.isEmpty()) {
         const pos = new THREE.Vector3();
@@ -119,7 +122,7 @@ export function updateCulling(camera: THREE.Camera) {
     let root: THREE.Object3D = e.obj;
     while (root.parent) root = root.parent;
     if (!updatedRoots.has(root)) {
-  root.updateWorldMatrix(true, false);
+      root.updateWorldMatrix(true, false);
       updatedRoots.add(root);
     }
   }
@@ -127,7 +130,7 @@ export function updateCulling(camera: THREE.Camera) {
   for (const e of entries) {
     if (e.recomputeEveryFrame) {
       // Recompute bounds in-place for dynamic objects. Ensure transforms are current.
-  e.obj.updateWorldMatrix(true, false);
+      e.obj.updateWorldMatrix(true, false);
       _box.setFromObject(e.obj);
       if (_box.isEmpty()) {
         const pos = new THREE.Vector3();
@@ -161,10 +164,19 @@ type AutoState = {
 
 const watchedRoots: WeakMap<THREE.Object3D, AutoState> = new WeakMap();
 let patchedAddRemove = false;
-let origAdd: (this: THREE.Object3D, ...objects: THREE.Object3D[]) => THREE.Object3D;
-let origRemove: (this: THREE.Object3D, ...objects: THREE.Object3D[]) => THREE.Object3D;
+let origAdd: (
+  this: THREE.Object3D,
+  ...objects: THREE.Object3D[]
+) => THREE.Object3D;
+let origRemove: (
+  this: THREE.Object3D,
+  ...objects: THREE.Object3D[]
+) => THREE.Object3D;
 
-function shouldAutoRegister(obj: THREE.Object3D, predicate?: (o: THREE.Object3D) => boolean) {
+function shouldAutoRegister(
+  obj: THREE.Object3D,
+  predicate?: (o: THREE.Object3D) => boolean,
+) {
   if (!predicate) {
     // default: register Mesh and InstancedMesh
     return (obj as any).isMesh || (obj as any).isInstancedMesh;
@@ -207,7 +219,9 @@ function ensurePatched() {
 
   // patch remove
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (THREE.Object3D.prototype as any).remove = function (...objs: THREE.Object3D[]) {
+  (THREE.Object3D.prototype as any).remove = function (
+    ...objs: THREE.Object3D[]
+  ) {
     const res = origRemove.apply(this as any, objs as any);
 
     for (const o of objs) {
@@ -231,9 +245,16 @@ function autoRegisterNodeRecursive(root: THREE.Object3D, state: AutoState) {
   const stack: THREE.Object3D[] = [root];
   while (stack.length) {
     const node = stack.pop()!;
-    if (!state.unregisters.has(node) && shouldAutoRegister(node, state.options.predicate)) {
+    if (
+      !state.unregisters.has(node) &&
+      shouldAutoRegister(node, state.options.predicate)
+    ) {
       try {
-        const u = registerForCulling(node, { dynamic: state.options.dynamic, padding: state.options.padding, sphere: undefined });
+        const u = registerForCulling(node, {
+          dynamic: state.options.dynamic,
+          padding: state.options.padding,
+          sphere: undefined,
+        });
         state.unregisters.set(node, u);
       } catch (err) {
         state.unregisters.set(node, null);
@@ -269,12 +290,15 @@ function autoUnregisterNodeRecursive(root: THREE.Object3D, state: AutoState) {
  *
  * Returns a disable function which will unregister everything and stop watching.
  */
-export function enableAutoCulling(root: THREE.Object3D, opts?: {
-  recursive?: boolean;
-  dynamic?: boolean;
-  padding?: number;
-  predicate?: (obj: THREE.Object3D) => boolean;
-}) {
+export function enableAutoCulling(
+  root: THREE.Object3D,
+  opts?: {
+    recursive?: boolean;
+    dynamic?: boolean;
+    padding?: number;
+    predicate?: (obj: THREE.Object3D) => boolean;
+  },
+) {
   ensurePatched();
   const options: AutoOptions = {
     recursive: opts?.recursive ?? true,
@@ -297,7 +321,9 @@ export function enableAutoCulling(root: THREE.Object3D, opts?: {
       const node = stack.pop()!;
       const u = state.unregisters.get(node);
       if (u) {
-        try { u(); } catch (_) {}
+        try {
+          u();
+        } catch (_) {}
       }
       if (options.recursive) for (const c of node.children) stack.push(c);
     }
@@ -316,11 +342,12 @@ export function disableAutoCulling(root: THREE.Object3D) {
     const node = stack.pop()!;
     const u = s.unregisters.get(node);
     if (u) {
-      try { u(); } catch (_) {}
+      try {
+        u();
+      } catch (_) {}
       s.unregisters.delete(node);
     }
     if (s.options.recursive) for (const c of node.children) stack.push(c);
   }
   watchedRoots.delete(root);
 }
-

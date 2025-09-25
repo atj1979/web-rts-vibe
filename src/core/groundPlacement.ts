@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 /**
  * # Unified Ground Placement System
@@ -76,7 +76,7 @@ import * as THREE from 'three';
  *   placer.placeObjectAt(myObject, new THREE.Vector3(x, y, z)); // Places at ground height for x,z with bottom touching ground
  */
 
-export type GroundType = 'flat' | 'terrain' | 'raycast';
+export type GroundType = "flat" | "terrain" | "raycast";
 
 export interface GroundConfig {
   type: GroundType;
@@ -116,40 +116,43 @@ export function createGroundPlacer(scene: THREE.Scene): GroundPlacer {
 
   function detectGroundConfig(scene: THREE.Scene): GroundConfig {
     // Look for terrain meshes (planes with displacement)
-    const terrainMeshes = scene.children.filter(child =>
-      child instanceof THREE.Mesh &&
-      child.geometry instanceof THREE.PlaneGeometry &&
-      child.rotation.x === -Math.PI / 2 // Horizontal plane
+    const terrainMeshes = scene.children.filter(
+      (child) =>
+        child instanceof THREE.Mesh &&
+        child.geometry instanceof THREE.PlaneGeometry &&
+        child.rotation.x === -Math.PI / 2, // Horizontal plane
     ) as THREE.Mesh[];
 
     if (terrainMeshes.length > 0) {
       // Assume the largest terrain mesh is the main ground
       const terrainMesh = terrainMeshes.reduce((largest, current) =>
-        current.geometry.attributes.position.count > largest.geometry.attributes.position.count
-          ? current : largest
+        current.geometry.attributes.position.count >
+        largest.geometry.attributes.position.count
+          ? current
+          : largest,
       );
 
       return {
-        type: 'terrain',
+        type: "terrain",
         terrainMesh,
-        defaultHeight: 0
+        defaultHeight: 0,
       };
     }
 
     // Default to flat ground
     return {
-      type: 'flat',
-      defaultHeight: 0
+      type: "flat",
+      defaultHeight: 0,
     };
   }
 
   function getGroundHeight(x: number, z: number): number {
     switch (currentConfig.type) {
-      case 'terrain':
+      case "terrain":
         return getTerrainHeight(x, z);
-      case 'raycast':
+      case "raycast":
         return getRaycastHeight(x, z);
-      case 'flat':
+      case "flat":
       default:
         return currentConfig.defaultHeight || 0;
     }
@@ -209,13 +212,19 @@ export function createGroundPlacer(scene: THREE.Scene): GroundPlacer {
   }
 
   function getRaycastHeight(x: number, z: number): number {
-    if (!currentConfig.raycastTargets || currentConfig.raycastTargets.length === 0) {
+    if (
+      !currentConfig.raycastTargets ||
+      currentConfig.raycastTargets.length === 0
+    ) {
       return currentConfig.defaultHeight || 0;
     }
 
     raycaster.set(new THREE.Vector3(x, 1000, z), downVector);
 
-    const intersects = raycaster.intersectObjects(currentConfig.raycastTargets, true);
+    const intersects = raycaster.intersectObjects(
+      currentConfig.raycastTargets,
+      true,
+    );
 
     if (intersects.length > 0) {
       return intersects[0].point.y;
@@ -231,14 +240,23 @@ export function createGroundPlacer(scene: THREE.Scene): GroundPlacer {
     object.updateMatrixWorld();
 
     // Special case: trees, tanks, grass, and flowers should have their bottom at y=0 (origin) touch the ground
-    if (object.name && (object.name.includes('tree_') || object.name === 'tank' || object.name === 'grass' || object.name === 'flower')) {
+    if (
+      object.name &&
+      (object.name.includes("tree_") ||
+        object.name === "tank" ||
+        object.name === "grass" ||
+        object.name === "flower")
+    ) {
       return 0;
     }
 
     // Check if this is a simple sphere geometry
     const meshes: THREE.Mesh[] = [];
     object.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry) {
+      if (
+        child instanceof THREE.Mesh &&
+        child.geometry instanceof THREE.SphereGeometry
+      ) {
         meshes.push(child);
       }
     });
@@ -262,7 +280,10 @@ export function createGroundPlacer(scene: THREE.Scene): GroundPlacer {
     object.position.set(x, groundHeight + bottomOffset, z);
   }
 
-  function placeObjectAt(object: THREE.Object3D, position: THREE.Vector3): void {
+  function placeObjectAt(
+    object: THREE.Object3D,
+    position: THREE.Vector3,
+  ): void {
     const groundHeight = getGroundHeight(position.x, position.z);
     const bottomOffset = getObjectBottomOffset(object);
     object.position.set(position.x, groundHeight + bottomOffset, position.z);
@@ -276,7 +297,7 @@ export function createGroundPlacer(scene: THREE.Scene): GroundPlacer {
     placeObject,
     placeObjectAt,
     getGroundHeight,
-    updateConfig
+    updateConfig,
   };
 }
 

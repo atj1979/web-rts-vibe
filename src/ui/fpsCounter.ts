@@ -1,20 +1,20 @@
 import { updateManager } from "../setup/updateManager";
 
 export function createFPSCounter() {
-  const fpsCounter = document.createElement('div');
-  fpsCounter.className = 'fps-counter';
+  const fpsCounter = document.createElement("div");
+  fpsCounter.className = "fps-counter";
   // inline styles (moved from separate CSS file)
-  fpsCounter.style.position = 'fixed';
-  fpsCounter.style.top = '10px';
-  fpsCounter.style.right = '10px';
-  fpsCounter.style.background = 'rgba(0, 0, 0, 0.7)';
-  fpsCounter.style.color = 'white';
-  fpsCounter.style.padding = '5px 10px';
-  fpsCounter.style.borderRadius = '5px';
-  fpsCounter.style.fontFamily = 'monospace';
-  fpsCounter.style.fontSize = '14px';
-  fpsCounter.style.zIndex = '1000';
-  fpsCounter.textContent = 'FPS: --';
+  fpsCounter.style.position = "fixed";
+  fpsCounter.style.top = "10px";
+  fpsCounter.style.right = "10px";
+  fpsCounter.style.background = "rgba(0, 0, 0, 0.7)";
+  fpsCounter.style.color = "white";
+  fpsCounter.style.padding = "5px 10px";
+  fpsCounter.style.borderRadius = "5px";
+  fpsCounter.style.fontFamily = "monospace";
+  fpsCounter.style.fontSize = "14px";
+  fpsCounter.style.zIndex = "1000";
+  fpsCounter.textContent = "FPS: --";
   document.body.appendChild(fpsCounter);
 
   let frameCount = 0;
@@ -37,7 +37,8 @@ export function createFPSCounter() {
 
   function dispose() {
     unregister();
-    if (fpsCounter.parentElement) fpsCounter.parentElement.removeChild(fpsCounter);
+    if (fpsCounter.parentElement)
+      fpsCounter.parentElement.removeChild(fpsCounter);
   }
 
   return { el: fpsCounter, dispose };

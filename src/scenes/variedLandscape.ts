@@ -88,7 +88,8 @@ export function addVariedLandscape(scene: THREE.Scene) {
     const tree = type();
     tree.scale.setScalar(3); // Make trees 3x bigger
     const angle = Math.random() * Math.PI * 2;
-    const radius = minTreeRadius + Math.random() * (maxTreeRadius - minTreeRadius);
+    const radius =
+      minTreeRadius + Math.random() * (maxTreeRadius - minTreeRadius);
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
     groundPlacer.placeObject(tree, x, z);
@@ -99,7 +100,7 @@ export function addVariedLandscape(scene: THREE.Scene) {
 
   // Grass patches (scattered throughout the landscape)
   const numGrassPatches = 200;
-  const grassColors = [0x228B22, 0x32CD32, 0x006400, 0x9ACD32]; // various greens
+  const grassColors = [0x228b22, 0x32cd32, 0x006400, 0x9acd32]; // various greens
 
   for (let i = 0; i < numGrassPatches; i++) {
     const grass = createGrass({
@@ -120,7 +121,7 @@ export function addVariedLandscape(scene: THREE.Scene) {
 
   // Flowers (scattered throughout, avoiding dense clusters)
   const numFlowers = 150;
-  const flowerColors = ['yellow', 'blue', 'pink', 'purple', 'white'];
+  const flowerColors = ["yellow", "blue", "pink", "purple", "white"];
 
   for (let i = 0; i < numFlowers; i++) {
     const flower = createFlower({

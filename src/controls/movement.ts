@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { getCurrentGlobalGroundPlacer } from '../core/groundPlacement';
+import * as THREE from "three";
+import { getCurrentGlobalGroundPlacer } from "../core/groundPlacement";
 
 /**
  * Movement controller.
@@ -23,7 +23,10 @@ type MovementController = {
   dispose: () => void;
 };
 
-export function createMovementController(player: THREE.Object3D, renderer: THREE.WebGLRenderer): MovementController {
+export function createMovementController(
+  player: THREE.Object3D,
+  renderer: THREE.WebGLRenderer,
+): MovementController {
   const state = {
     enabled: true,
     speed: 5.0, // m/s (increased from 2.5 for 2x speed)
@@ -33,14 +36,25 @@ export function createMovementController(player: THREE.Object3D, renderer: THREE
   const keys: Record<string, boolean> = {};
   function onKey(e: KeyboardEvent) {
     const k = e.key.toLowerCase();
-    if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
-      if (e.type === 'keydown') keys[k] = true;
-      else if (e.type === 'keyup') keys[k] = false;
+    if (
+      [
+        "w",
+        "a",
+        "s",
+        "d",
+        "arrowup",
+        "arrowdown",
+        "arrowleft",
+        "arrowright",
+      ].includes(k)
+    ) {
+      if (e.type === "keydown") keys[k] = true;
+      else if (e.type === "keyup") keys[k] = false;
       e.preventDefault();
     }
   }
-  window.addEventListener('keydown', onKey);
-  window.addEventListener('keyup', onKey);
+  window.addEventListener("keydown", onKey);
+  window.addEventListener("keyup", onKey);
 
   // Helper to read left gamepad axes from XR controllers
   function getLeftThumbstick() {
@@ -48,7 +62,7 @@ export function createMovementController(player: THREE.Object3D, renderer: THREE
     if (!session) return null;
     const inputSources = Array.from(session.inputSources || []) as any[];
     for (const s of inputSources) {
-      if (s.handedness === 'left' && s.gamepad) {
+      if (s.handedness === "left" && s.gamepad) {
         const gp = s.gamepad as Gamepad;
         // standard mapping: axes[2]=x, axes[3]=y OR axes[0]=x, axes[1]=y depending on controller
         // prefer thumbstick-like axes with magnitude
@@ -82,10 +96,10 @@ export function createMovementController(player: THREE.Object3D, renderer: THREE
       move.z += ty;
     } else {
       // Keyboard fallback
-      if (keys['w'] || keys['arrowup']) move.z -= 1;
-      if (keys['s'] || keys['arrowdown']) move.z += 1;
-      if (keys['a'] || keys['arrowleft']) move.x -= 1;
-      if (keys['d'] || keys['arrowright']) move.x += 1;
+      if (keys["w"] || keys["arrowup"]) move.z -= 1;
+      if (keys["s"] || keys["arrowdown"]) move.z += 1;
+      if (keys["a"] || keys["arrowleft"]) move.x -= 1;
+      if (keys["d"] || keys["arrowright"]) move.x += 1;
     }
 
     if (move.lengthSq() < 1e-6) return;
@@ -97,8 +111,10 @@ export function createMovementController(player: THREE.Object3D, renderer: THREE
     const quat = new THREE.Quaternion();
     player.getWorldQuaternion(quat);
     // Project quaternion to yaw only (ignore pitch/roll)
-    const euler = new THREE.Euler().setFromQuaternion(quat, 'YXZ');
-    const yawQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, euler.y, 0));
+    const euler = new THREE.Euler().setFromQuaternion(quat, "YXZ");
+    const yawQuat = new THREE.Quaternion().setFromEuler(
+      new THREE.Euler(0, euler.y, 0),
+    );
     move.applyQuaternion(yawQuat);
 
     // Update player position
@@ -107,7 +123,10 @@ export function createMovementController(player: THREE.Object3D, renderer: THREE
     // Follow ground contours: adjust Y position to match ground height
     const groundPlacer = getCurrentGlobalGroundPlacer();
     if (groundPlacer) {
-      const groundHeight = groundPlacer.getGroundHeight(player.position.x, player.position.z);
+      const groundHeight = groundPlacer.getGroundHeight(
+        player.position.x,
+        player.position.z,
+      );
       // For player, we want their feet at ground level (player is at eye height, so offset down)
       // Assuming player camera is at 1.7m above player position
       player.position.y = groundHeight + 1.7;
@@ -115,8 +134,8 @@ export function createMovementController(player: THREE.Object3D, renderer: THREE
   };
 
   state.dispose = function () {
-    window.removeEventListener('keydown', onKey);
-    window.removeEventListener('keyup', onKey);
+    window.removeEventListener("keydown", onKey);
+    window.removeEventListener("keyup", onKey);
   };
 
   return state;
