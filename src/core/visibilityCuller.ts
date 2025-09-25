@@ -13,6 +13,7 @@ const entries: CullEntry[] = [];
 const _box = new THREE.Box3();
 const _projScreenMatrix = new THREE.Matrix4();
 const _frustum = new THREE.Frustum();
+const _viewMatrix = new THREE.Matrix4();
 
 export type RegisterOptions = {
   /** If true, recompute bounding sphere every frame. Use for moving objects. Default false. */
@@ -41,6 +42,8 @@ export function registerForCulling(obj: THREE.Object3D, opts?: RegisterOptions) 
 
   // Helper to (re)compute the world-space bounding sphere for this object
   function computeBounds() {
+    // Ensure this object's world matrices are up-to-date before computing bounds
+  obj.updateWorldMatrix(true, false);
     _box.setFromObject(obj);
     if (_box.isEmpty()) {
       // fallback: small sphere at object's world position
@@ -79,6 +82,7 @@ export function registerForCulling(obj: THREE.Object3D, opts?: RegisterOptions) 
 export function updateBoundsFor(obj: THREE.Object3D) {
   for (const e of entries) {
     if (e.obj === obj) {
+  obj.updateWorldMatrix(true, false);
       _box.setFromObject(obj);
       if (_box.isEmpty()) {
         const pos = new THREE.Vector3();
@@ -102,13 +106,28 @@ export function updateBoundsFor(obj: THREE.Object3D) {
 export function updateCulling(camera: THREE.Camera) {
   if (entries.length === 0) return;
 
-  // Build frustum from camera matrices
-  _projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+  // Ensure camera matrixWorld is up-to-date and build view matrix
+  camera.updateWorldMatrix(true, false);
+  _viewMatrix.copy(camera.matrixWorld).invert();
+  // Build frustum from projection * view
+  _projScreenMatrix.multiplyMatrices(camera.projectionMatrix, _viewMatrix);
   _frustum.setFromProjectionMatrix(_projScreenMatrix);
+
+  // Ensure top-level ancestors (typically the scene) have their matrixWorld updated
+  const updatedRoots = new WeakSet<THREE.Object3D>();
+  for (const e of entries) {
+    let root: THREE.Object3D = e.obj;
+    while (root.parent) root = root.parent;
+    if (!updatedRoots.has(root)) {
+  root.updateWorldMatrix(true, false);
+      updatedRoots.add(root);
+    }
+  }
 
   for (const e of entries) {
     if (e.recomputeEveryFrame) {
-      // Recompute bounds in-place for dynamic objects
+      // Recompute bounds in-place for dynamic objects. Ensure transforms are current.
+  e.obj.updateWorldMatrix(true, false);
       _box.setFromObject(e.obj);
       if (_box.isEmpty()) {
         const pos = new THREE.Vector3();

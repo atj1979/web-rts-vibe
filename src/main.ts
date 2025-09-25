@@ -83,13 +83,13 @@ const { userCamera, player } = setupPlayer(renderer, scene);
 // Create in-VR debug panel (pass camera so it always faces user)
 createVRDebugPanel(scene, player, userCamera);
 
-// Register a per-frame culling pass so static objects are hidden when off-screen
-updateManager.register(() => {
+// Register late-phase culling so it runs after other per-frame updates
+updateManager.registerLate(() => {
   try {
+    scene.updateWorldMatrix(true, false);
     updateCulling(userCamera);
   } catch (err) {
-    // Protect the render loop from culling errors
-    console.warn('Culling update failed', err);
+    console.warn("Culling update failed", err);
   }
 });
 
@@ -176,6 +176,7 @@ function renderLoop() {
 
 
   updateManager.updateAll({ deltaTime: dt });
+
   renderer.render(scene, userCamera);
 }
 
