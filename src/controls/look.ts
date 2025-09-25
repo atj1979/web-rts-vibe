@@ -64,8 +64,21 @@ export function createLookController(
     // only request pointer lock when not in XR and state enabled
     if ((renderer.xr.getSession && renderer.xr.getSession()) || !state.enabled) return;
     const el = renderer.domElement;
-    if (el && typeof el.requestPointerLock === 'function') {
-      el.requestPointerLock();
+    // requestPointerLock will throw a WrongDocumentError if the element
+    // has been removed from the DOM (e.g. scene UI teardown). Check that
+    // the element is still connected before calling, and guard with try/catch
+    // to avoid uncaught exceptions in edge cases.
+    const isConnected = (el && (el as any).isConnected) || (el && document.contains(el));
+    if (el && typeof el.requestPointerLock === 'function' && isConnected) {
+      try {
+        el.requestPointerLock();
+      } catch (err) {
+        // Non-fatal — log for debugging but don't throw.
+        // This avoids the uncaught WrongDocumentError seen when the canvas
+        // was removed before pointer lock was requested.
+        // eslint-disable-next-line no-console
+        console.warn('requestPointerLock failed', err);
+      }
     }
   }
 

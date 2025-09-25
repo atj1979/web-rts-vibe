@@ -1,6 +1,16 @@
+# AI Agent Guidelines
+
+⚠️ **WARNING: AI agents must not run `npm run dev` under any circumstances unless explicitly instructed by the user.**
+
+- A task is not complete unless the build is working without error.
+- AI agents must not run `npm run dev` under any circumstances unless explicitly instructed by the user. Instead, agents should assist by analyzing logs, reviewing code, or suggesting solutions. The responsibility of running the development server lies solely with the end user.
+
+---
+
 ## TODO
 
 - Revisit and further improve the person model's arm/shoulder connection for more anatomical accuracy and visual appeal.
+
 # AI Development Notes
 
 ## Overall Goal
@@ -12,14 +22,17 @@ This file contains human-readable notes about the development of the web-based V
 ---
 
 ## Getting Started
+
 - Project uses Vite with TypeScript for fast development and type safety.
 - VR framework (e.g., Three.js or A-Frame) will be integrated for immersive experiences.
 
 ## How to Use This File
+
 - Add any important information, decisions, or reminders related to AI, game logic, or general development here.
 - Use Markdown formatting for sections, lists, and code blocks.
 
 ## Example Note
+
 ```
 - [2025-08-23] Initialized project structure and set up this notes file.
 - Always update this file with major changes or design decisions.
@@ -28,6 +41,7 @@ This file contains human-readable notes about the development of the web-based V
 ---
 
 ## Update Manager Pattern
+
 - [2025-08-24] All per-frame update logic (movement, VR hands, etc.) must be registered with the update manager (`updateManager`).
 - Do **not** call `.update()` methods directly in the render loop. Instead, register them with `updateManager.register(fn)` and call `updateManager.updateAll(dt)` in the render loop.
 - This ensures a scalable, maintainable update pattern for all game objects and systems.
@@ -36,6 +50,7 @@ This file contains human-readable notes about the development of the web-based V
 
 
 ## VR/WebXR Setup
+
 - The project uses Three.js's VRButton for WebXR support. If VR is not available, a fallback message is shown and standard controls are used.
 - VR and non-VR modes are both supported and tested.
 - TODO: Request WebXR optional feature `hand-tracking` when starting XR session so devices like Quest 3 provide joint data reliably. Consider custom session request instead of VRButton default.
@@ -55,4 +70,6 @@ This file contains human-readable notes about the development of the web-based V
 
 - [2025-08-24] Added `src/commit.ts` to `.gitignore` so build-time writes won't appear in `git status`.
 - Note: if `src/commit.ts` was already tracked by git, it will still show as changed until the file is removed from the index (git rm --cached). No git commands were run by the assistant; please untrack the file locally if desired.
+
+---
 

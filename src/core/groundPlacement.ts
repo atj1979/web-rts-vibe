@@ -230,8 +230,8 @@ export function createGroundPlacer(scene: THREE.Scene): GroundPlacer {
 
     object.updateMatrixWorld();
 
-    // Special case: trees and tanks should have their bottom at y=0 (origin) touch the ground
-    if (object.name && (object.name.includes('tree_') || object.name === 'tank')) {
+    // Special case: trees, tanks, grass, and flowers should have their bottom at y=0 (origin) touch the ground
+    if (object.name && (object.name.includes('tree_') || object.name === 'tank' || object.name === 'grass' || object.name === 'flower')) {
       return 0;
     }
 

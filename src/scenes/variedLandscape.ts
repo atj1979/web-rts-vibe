@@ -3,6 +3,8 @@ import { createTreeOak } from "../objects/tree/tree_oak";
 import { createTreePine } from "../objects/tree/tree_pine";
 import { createTreeBlossom } from "../objects/tree/tree_blossom";
 import { createTestSphere } from "../objects/testSphere";
+import { createGrass } from "../objects/grass";
+import { createFlower } from "../objects/flower";
 import { getGlobalGroundPlacer } from "../core/groundPlacement";
 
 // Simple 2D noise function (not true Perlin, but enough for demo)
@@ -71,23 +73,72 @@ export function addVariedLandscape(scene: THREE.Scene) {
   scene.add(grid);
   objects.push(grid);
 
-  // --- Random Trees on terrain ---
-  const treeTypes = [createTreeOak, createTreePine, createTreeBlossom];
-  const numTrees = 30;
-  const minRadius = 10;
-  const maxRadius = 90;
+  // --- Dense Vegetation: Trees, Grass, and Flowers ---
   const groundPlacer = getGlobalGroundPlacer(scene);
+
+  // Trees (increased from 30 to 120 for denser forest)
+  const treeTypes = [createTreeOak, createTreePine, createTreeBlossom];
+  const numTrees = 120;
+  const minTreeRadius = 8;
+  const maxTreeRadius = 95;
+
   for (let i = 0; i < numTrees; i++) {
     const type = treeTypes[Math.floor(Math.random() * treeTypes.length)];
     const tree = type();
+    tree.scale.setScalar(3); // Make trees 3x bigger
     const angle = Math.random() * Math.PI * 2;
-    const radius = minRadius + Math.random() * (maxRadius - minRadius);
+    const radius = minTreeRadius + Math.random() * (maxTreeRadius - minTreeRadius);
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
     groundPlacer.placeObject(tree, x, z);
     tree.rotation.y = Math.random() * Math.PI * 2;
     scene.add(tree);
     objects.push(tree);
+  }
+
+  // Grass patches (scattered throughout the landscape)
+  const numGrassPatches = 200;
+  const grassColors = [0x228B22, 0x32CD32, 0x006400, 0x9ACD32]; // various greens
+
+  for (let i = 0; i < numGrassPatches; i++) {
+    const grass = createGrass({
+      color: grassColors[Math.floor(Math.random() * grassColors.length)],
+      size: 0.8 + Math.random() * 0.4, // 0.8 to 1.2
+      fill: 8 + Math.floor(Math.random() * 12), // 8 to 20 blades
+      windStrength: 0.3 + Math.random() * 0.4, // 0.3 to 0.7
+    });
+
+    // Place grass randomly across the terrain
+    const x = (Math.random() - 0.5) * 180; // -90 to 90
+    const z = (Math.random() - 0.5) * 180; // -90 to 90
+    groundPlacer.placeObject(grass, x, z);
+    grass.rotation.y = Math.random() * Math.PI * 2;
+    scene.add(grass);
+    objects.push(grass);
+  }
+
+  // Flowers (scattered throughout, avoiding dense clusters)
+  const numFlowers = 150;
+  const flowerColors = ['yellow', 'blue', 'pink', 'purple', 'white'];
+
+  for (let i = 0; i < numFlowers; i++) {
+    const flower = createFlower({
+      color: flowerColors[Math.floor(Math.random() * flowerColors.length)],
+      petalSize: 0.08 + Math.random() * 0.08, // 0.08 to 0.16
+      petalCount: 4 + Math.floor(Math.random() * 5), // 4 to 9
+      stemHeight: 0.6 + Math.random() * 0.4, // 0.6 to 1.0
+      windStrength: 0.4 + Math.random() * 0.3, // 0.4 to 0.7
+    });
+
+    // Place flowers randomly, but avoid very center and edges
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 15 + Math.random() * 70; // 15 to 85 (avoid center and edges)
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+    groundPlacer.placeObject(flower, x, z);
+    flower.rotation.y = Math.random() * Math.PI * 2;
+    scene.add(flower);
+    objects.push(flower);
   }
 
   // --- Test Sphere for terrain ground placement ---
@@ -116,7 +167,7 @@ export function addVariedLandscape(scene: THREE.Scene) {
         const idx = iy * (segments + 1) + ix;
         z = verts.getZ(idx);
       }
-      return new THREE.Vector3(0, z + 1.1, 0);
+      return new THREE.Vector3(0, z + 8, 0); // Increased from 1.1 to 8 to account for 3x bigger trees
     },
   };
 }

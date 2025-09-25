@@ -23,6 +23,26 @@ renderer.xr.enabled = true;
 const appEl = document.getElementById("app")!;
 appEl.appendChild(renderer.domElement);
 
+// Create FPS counter display
+const fpsCounter = document.createElement('div');
+fpsCounter.style.position = 'fixed';
+fpsCounter.style.top = '10px';
+fpsCounter.style.right = '10px';
+fpsCounter.style.background = 'rgba(0, 0, 0, 0.7)';
+fpsCounter.style.color = 'white';
+fpsCounter.style.padding = '5px 10px';
+fpsCounter.style.borderRadius = '5px';
+fpsCounter.style.fontFamily = 'monospace';
+fpsCounter.style.fontSize = '14px';
+fpsCounter.style.zIndex = '1000';
+fpsCounter.textContent = 'FPS: --';
+document.body.appendChild(fpsCounter);
+
+// FPS tracking variables
+let frameCount = 0;
+let lastFpsUpdate = performance.now();
+let fps = 0;
+
 // Add XR entry button that requests hand-tracking when available
 if ("xr" in navigator) {
   const xrButton = document.createElement("button");
@@ -154,6 +174,16 @@ function renderLoop() {
   const last = lastFrameTime || now;
   const dt = Math.min(0.1, (now - last) / 1000);
   lastFrameTime = now;
+
+  // Update FPS counter
+  frameCount++;
+  if (now - lastFpsUpdate >= 1000) { // Update every second
+    fps = Math.round(frameCount * 1000 / (now - lastFpsUpdate));
+    fpsCounter.textContent = `FPS: ${fps}`;
+    frameCount = 0;
+    lastFpsUpdate = now;
+  }
+
   updateManager.updateAll({ deltaTime: dt });
   renderer.render(scene, userCamera);
 }

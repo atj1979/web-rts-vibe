@@ -94,3 +94,11 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* FPS Counter and VR Button positioning */
+.xr-button {
+  position: fixed !important;
+  top: 10px !important;
+  left: 10px !important;
+  z-index: 1000 !important;
+}
