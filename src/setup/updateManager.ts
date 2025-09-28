@@ -13,7 +13,7 @@ class UpdateManager {
     this.updates.delete(fn);
   }
 
-  updateAll({deltaTime}: {deltaTime: number}) {
+  updateAll({ deltaTime }: { deltaTime: number }) {
     for (const fn of this.updates) {
       fn(deltaTime);
     }

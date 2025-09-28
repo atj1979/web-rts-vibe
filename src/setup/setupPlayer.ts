@@ -22,7 +22,7 @@ export function setupPlayer(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
     75,
     window.innerWidth / window.innerHeight,
     0.1,
-    1000
+    1000,
   );
   // Set initial camera position relative to player (eye height)
   userCamera.position.set(0, 1.7, 0);

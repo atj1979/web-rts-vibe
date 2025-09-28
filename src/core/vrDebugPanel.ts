@@ -10,7 +10,7 @@ let texture: THREE.CanvasTexture | null = null;
 export function createVRDebugPanel(
   scene: THREE.Scene,
   player: THREE.Object3D,
-  camera?: THREE.Camera
+  camera?: THREE.Camera,
 ) {
   if (panelMesh) return panelMesh;
   canvas = document.createElement("canvas");
@@ -46,7 +46,7 @@ export function createVRDebugPanel(
     const z = Math.sin(angle) * radius;
     const start = new THREE.Vector3(x, 6, z);
     // If there is a keep object in the scene, point lines at it; otherwise to the panel
-    const keepObj = scene.getObjectByName('keep');
+    const keepObj = scene.getObjectByName("keep");
     let end: THREE.Vector3;
     if (keepObj) {
       keepObj.updateMatrixWorld();
@@ -93,7 +93,7 @@ export function createVRDebugPanel(
     panelMesh.rotateY(rad);
 
     // Update lines to point to the keep (if present) or panel position
-    const keepObj = scene.getObjectByName('keep');
+    const keepObj = scene.getObjectByName("keep");
     let targetPos = panelMesh.position.clone();
     if (keepObj) {
       keepObj.updateMatrixWorld();

@@ -8,7 +8,7 @@ import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerM
  */
 export function setupVRHands(
   renderer: THREE.WebGLRenderer,
-  scene: THREE.Scene | THREE.Group
+  scene: THREE.Scene | THREE.Group,
 ) {
   const handFactory = new XRHandModelFactory();
   const controllerFactory = new XRControllerModelFactory();
@@ -68,10 +68,10 @@ export function setupVRHands(
 
     const inputSources = Array.from(session.inputSources || []);
     const leftHanded = inputSources.some(
-      (s: any) => s.handedness === "left" && !!s.hand
+      (s: any) => s.handedness === "left" && !!s.hand,
     );
     const rightHanded = inputSources.some(
-      (s: any) => s.handedness === "right" && !!s.hand
+      (s: any) => s.handedness === "right" && !!s.hand,
     );
 
     // If hand tracking is available for a hand, show the hand model and hide the controller model

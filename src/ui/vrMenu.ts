@@ -40,7 +40,7 @@ export function setupVRMenu({
       new THREE.MeshBasicMaterial({
         color: 0x222244,
         opacity: 0.92,
-      })
+      }),
     );
     bg.position.z = -0.01;
     group.add(bg);
@@ -51,7 +51,7 @@ export function setupVRMenu({
     sceneSwitcher["scenes"].forEach((_s, i) => {
       const btn = new THREE.Mesh(
         new THREE.PlaneGeometry(btnWidth, btnHeight),
-        new THREE.MeshBasicMaterial({ color: 0x4488ff })
+        new THREE.MeshBasicMaterial({ color: 0x4488ff }),
       );
       btn.position.set(0, 0.08 - i * btnGap, 0);
       // Add text label (simple, not real 3D text)
@@ -112,8 +112,8 @@ export function setupVRMenu({
         orientation.x,
         orientation.y,
         orientation.z,
-        orientation.w
-      )
+        orientation.w,
+      ),
     );
     // Raycast against menu buttons
     const ray = new THREE.Ray(origin, dir);
@@ -148,7 +148,7 @@ export function setupVRMenu({
     // Menu button is usually button[3] or [4] (varies by controller)
     const menuBtn = left.gamepad.buttons[3] || left.gamepad.buttons[4];
     vrDebugLog(
-      "VR Menu: menuBtn=" + (menuBtn ? JSON.stringify(menuBtn) : "none")
+      "VR Menu: menuBtn=" + (menuBtn ? JSON.stringify(menuBtn) : "none"),
     );
     const pressed = menuBtn && menuBtn.pressed;
     if (pressed && !lastMenuButtonState) {

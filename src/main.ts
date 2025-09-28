@@ -25,18 +25,18 @@ const appEl = document.getElementById("app")!;
 appEl.appendChild(renderer.domElement);
 
 // Create FPS counter display
-const fpsCounter = document.createElement('div');
-fpsCounter.style.position = 'fixed';
-fpsCounter.style.top = '10px';
-fpsCounter.style.right = '10px';
-fpsCounter.style.background = 'rgba(0, 0, 0, 0.7)';
-fpsCounter.style.color = 'white';
-fpsCounter.style.padding = '5px 10px';
-fpsCounter.style.borderRadius = '5px';
-fpsCounter.style.fontFamily = 'monospace';
-fpsCounter.style.fontSize = '14px';
-fpsCounter.style.zIndex = '1000';
-fpsCounter.textContent = 'FPS: --';
+const fpsCounter = document.createElement("div");
+fpsCounter.style.position = "fixed";
+fpsCounter.style.top = "10px";
+fpsCounter.style.right = "10px";
+fpsCounter.style.background = "rgba(0, 0, 0, 0.7)";
+fpsCounter.style.color = "white";
+fpsCounter.style.padding = "5px 10px";
+fpsCounter.style.borderRadius = "5px";
+fpsCounter.style.fontFamily = "monospace";
+fpsCounter.style.fontSize = "14px";
+fpsCounter.style.zIndex = "1000";
+fpsCounter.textContent = "FPS: --";
 document.body.appendChild(fpsCounter);
 
 // FPS tracking variables
@@ -152,8 +152,11 @@ window.addEventListener("unload", () => {
 });
 
 // Dispose VR menu when switching scenes so scene-specific UI is cleaned up
-eventBus.on<number>('scene:switch', () => {
-  if (vrMenuController && typeof (vrMenuController as any).dispose === 'function') {
+eventBus.on<number>("scene:switch", () => {
+  if (
+    vrMenuController &&
+    typeof (vrMenuController as any).dispose === "function"
+  ) {
     (vrMenuController as any).dispose();
   }
 });
@@ -174,8 +177,9 @@ function renderLoop() {
 
   // Update FPS counter
   frameCount++;
-  if (now - lastFpsUpdate >= 1000) { // Update every second
-    fps = Math.round(frameCount * 1000 / (now - lastFpsUpdate));
+  if (now - lastFpsUpdate >= 1000) {
+    // Update every second
+    fps = Math.round((frameCount * 1000) / (now - lastFpsUpdate));
     fpsCounter.textContent = `FPS: ${fps}`;
     frameCount = 0;
     lastFpsUpdate = now;

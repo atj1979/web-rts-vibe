@@ -59,13 +59,15 @@ export function addBasicWorld(scene: THREE.Scene) {
   const numSpheres = 100;
   const minRadius = 5; // avoid center
   const maxRadius = 90;
-  const sphereColors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff]; // red, green, blue, yellow, magenta, cyan
+  const sphereColors = [
+    0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff,
+  ]; // red, green, blue, yellow, magenta, cyan
   const groundPlacer = getGlobalGroundPlacer(scene);
   for (let i = 0; i < numSpheres; i++) {
     const color = sphereColors[Math.floor(Math.random() * sphereColors.length)];
-    const sphere = createTestSphere({ 
+    const sphere = createTestSphere({
       color: color,
-      radius: 0.3 + Math.random() * 0.4 // 0.3 to 0.7 radius
+      radius: 0.3 + Math.random() * 0.4, // 0.3 to 0.7 radius
     });
     const angle = Math.random() * Math.PI * 2;
     const radius = minRadius + Math.random() * (maxRadius - minRadius);

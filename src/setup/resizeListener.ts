@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 /**
  * Sets up a resize listener for the renderer and camera.
@@ -10,11 +10,11 @@ import * as THREE from 'three';
 export function setupResizeListener({
   renderer,
   camera,
-  parentEl
+  parentEl,
 }: {
-  renderer: THREE.WebGLRenderer,
-  camera: THREE.PerspectiveCamera,
-  parentEl?: HTMLElement | null
+  renderer: THREE.WebGLRenderer;
+  camera: THREE.PerspectiveCamera;
+  parentEl?: HTMLElement | null;
 }) {
   function resizeRendererToDisplaySize() {
     const width = parentEl?.clientWidth || window.innerWidth;
@@ -24,10 +24,10 @@ export function setupResizeListener({
     camera.updateProjectionMatrix();
   }
   resizeRendererToDisplaySize();
-  window.addEventListener('resize', resizeRendererToDisplaySize);
+  window.addEventListener("resize", resizeRendererToDisplaySize);
   return {
     dispose() {
-      window.removeEventListener('resize', resizeRendererToDisplaySize);
-    }
+      window.removeEventListener("resize", resizeRendererToDisplaySize);
+    },
   };
 }
