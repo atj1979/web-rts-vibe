@@ -5,6 +5,7 @@ import { SceneSwitcher } from "./sceneSwitcher";
 import { addBasicWorld } from "./scenes/basicWorld";
 import { addVariedLandscape } from "./scenes/variedLandscape";
 import { addTankDemo } from "./scenes/tankDemo";
+import { addGenerated } from "./scenes/generated";
 import { COMMIT } from "./commit";
 import { setupResizeListener } from "./setup/resizeListener";
 import { updateManager } from "./setup/updateManager";
@@ -100,7 +101,8 @@ const sceneSwitcher = new SceneSwitcher(scene);
 sceneSwitcher.registerScene("Basic World", addBasicWorld);
 sceneSwitcher.registerScene("Tank Demo", addTankDemo);
 sceneSwitcher.registerScene("Varied Landscape", addVariedLandscape);
-sceneSwitcher.switchTo(0); // Start with Basic World
+sceneSwitcher.registerScene("Generated", addGenerated);
+sceneSwitcher.switchTo(3); // Start with Generated
 sceneSwitcher.attachUIToLeftWrist();
 
 // Set user/player position after scene load
@@ -158,11 +160,6 @@ eventBus.on<number>('scene:switch', () => {
 
 // Log commit hash so deployed builds can be traced
 console.log("Build commit:", COMMIT);
-
-// Add a light source for the Phong material
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(5, 5, 5);
-scene.add(light);
 
 let lastFrameTime = performance.now();
 
