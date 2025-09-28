@@ -6,11 +6,18 @@ import { getGlobalGroundPlacer } from '../core/groundPlacement';
 import modelAUrl from '../objects/generated/BuildingGeneral.glb?url';
 import modelBUrl from '../objects/generated/DroneHelicopter.glb?url';
 import modelCUrl from '../objects/generated/TurretMachineGun.glb?url';
+import modelDUrl from '../objects/generated/BasicTowerBottom.glb?url';
+import modelEUrl from '../objects/generated/Crystal1.glb?url';
+import modelFUrl from '../objects/generated/LaserStationary.glb?url';
 
-const FILE_URLS = [modelAUrl, modelBUrl, modelCUrl];
+const FILE_URLS = [modelAUrl, modelBUrl, modelCUrl, modelDUrl, modelEUrl, modelFUrl];
 
 export function addGenerated(scene: THREE.Scene) {
-  const objects: THREE.Object3D[] = [];
+  // Root group to own all generated scene content (except ground which remains a scene child
+  // so ground auto-detection in GroundPlacer continues to work).
+  const container = new THREE.Group();
+  container.name = 'generated_root';
+  scene.add(container);
   const loader = new GLTFLoader();
 
   // --- Ground (grass-like plane) ---
@@ -49,7 +56,6 @@ export function addGenerated(scene: THREE.Scene) {
   groundMesh.receiveShadow = true;
   groundMesh.name = 'ground_plane';
   scene.add(groundMesh);
-  objects.push(groundMesh);
 
   const groundPlacer = getGlobalGroundPlacer(scene);
 
@@ -67,24 +73,22 @@ export function addGenerated(scene: THREE.Scene) {
     skyColors.push(c.r, c.g, c.b);
   }
   skyGeo.setAttribute('color', new THREE.Float32BufferAttribute(skyColors, 3));
-  scene.add(skyMesh);
-  objects.push(skyMesh);
+  // Add visual content into the container group so it can be removed/ disposed as one unit.
+  container.add(skyMesh);
 
-  // --- Lighting ---
-  // const dir = new THREE.DirectionalLight(0xffffff, 1.0);
-  // dir.position.set(5, 10, 7);
-  // scene.add(dir);
-  // objects.push(dir);
 
-  // const amb = new THREE.AmbientLight(0xffffff, 0.35);
-  // scene.add(amb);
-  // objects.push(amb);
+  const amb = new THREE.AmbientLight(0xffffff, 0.35);
+  container.add(amb);
 
-  // Add a warm point light to give models nicer specular/highlight
-  const point = new THREE.PointLight(0xfff0d6, 999.2, 30, 2);
-  point.position.set(0, 5, 6);
-  scene.add(point);
-  objects.push(point);
+  // Add a directional light to simulate sunlight
+  const sun = new THREE.DirectionalLight(0xffffff, 6.8);
+  sun.position.set(100, 200, 100);
+  sun.castShadow = true;
+  sun.shadow.mapSize.width = 2048;
+  sun.shadow.mapSize.height = 2048;
+  sun.shadow.camera.near = 0.5;
+  sun.shadow.camera.far = 500;  
+  container.add(sun);
 
   // Load each model (using URLs from Vite) and place them in a row
   const spacing = 4;
@@ -92,17 +96,16 @@ export function addGenerated(scene: THREE.Scene) {
     loader.load(
       url,
       (gltf: any) => {
-        const root = gltf.scene || gltf.scenes?.[0];
-        if (!root) return;
-        root.name = `generated_${idx}`;
+        const gltfRoot = gltf.scene || gltf.scenes?.[0];
+        if (!gltfRoot) return;
+        gltfRoot.name = `generated_${idx}`;
         // scale models up to be more visible
-        root.scale.setScalar(3);
+        gltfRoot.scale.setScalar(3);
         // Place spread out on x axis
         const x = (idx - (FILE_URLS.length - 1) / 2) * spacing;
-        groundPlacer.placeObject(root, x, 0);
-        root.rotation.y = Math.random() * Math.PI * 2;
-        scene.add(root);
-        objects.push(root);
+        groundPlacer.placeObject(gltfRoot, x, 0);
+        gltfRoot.rotation.y = Math.random() * Math.PI * 2;
+        container.add(gltfRoot);
       },
       undefined,
       (err: unknown) => {
@@ -113,19 +116,29 @@ export function addGenerated(scene: THREE.Scene) {
 
   return {
     dispose() {
-      for (const o of objects) {
-        scene.remove(o);
-        (o as any).traverse?.((child: any) => {
-          if (child.geometry) child.geometry.dispose?.();
-          if (child.material) {
-            if (Array.isArray(child.material)) {
-              child.material.forEach((m: any) => m.dispose?.());
-            } else {
-              child.material.dispose?.();
-            }
+      // Remove and dispose all generated content in the container
+      scene.remove(container);
+      container.traverse((child: any) => {
+        if (child.geometry) child.geometry.dispose?.();
+        if (child.material) {
+          const mats = Array.isArray(child.material) ? child.material : [child.material];
+          for (const m of mats) {
+            if (m.map) m.map.dispose?.();
+            m.dispose?.();
           }
-        });
+        }
+      });
+
+      // Remove and dispose the ground mesh (it was added directly to the scene)
+      scene.remove(groundMesh);
+      if (groundMesh.geometry) groundMesh.geometry.dispose?.();
+      if (groundMesh.material) {
+        const gm = groundMesh.material as any;
+        if (gm.map) gm.map.dispose?.();
+        gm.dispose?.();
       }
+      // Also dispose canvas texture reference if still present
+      if ((texture as any)?.dispose) (texture as any).dispose();
     },
     getSpawnPosition() {
       // Spawn a bit behind center
